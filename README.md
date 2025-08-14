@@ -2,6 +2,8 @@
 
 A modern chat interface for the Chirality Framework, enabling semantic matrix operations and knowledge graph exploration through conversational AI.
 
+(Previously: A simple chat app using Streamlit that integrated "Concept Crush" and the "Chirality Framework" - see Simple5.py for the original implementation)
+
 ## Features
 
 - 🤖 **AI-Powered Chat**: OpenAI Responses API integration with streaming support
