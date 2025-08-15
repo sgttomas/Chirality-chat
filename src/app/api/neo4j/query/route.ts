@@ -136,14 +136,14 @@ export async function POST(req: NextRequest) {
                    name: m.name,
                    title: m.title,
                    matrixKey: m.matrixKey,
-                   cellCount: size((m)-[:HAS_CELL]->())
+                   cellCount: COUNT { (m)-[:HAS_CELL]->() }
                  }) AS matrices
           ORDER BY s.index
         `);
         
         const stations = result.records.map(record => ({
           name: record.get('name'),
-          index: record.get('index').toNumber(),
+          index: record.get('index') ? record.get('index').toNumber() : 0,
           createdAt: record.get('createdAt'),
           matrices: record.get('matrices').filter((m: any) => m.name)
         }));
@@ -236,6 +236,45 @@ export async function POST(req: NextRequest) {
         };
 
         return NextResponse.json({ ok: true, matrix });
+      }
+
+      // Get Phase-1 matrices status (C, F, D)
+      if (query_type === 'get_phase1_status') {
+        const result = await session.run(`
+          MATCH (s:Station)-[:HAS_MATRIX]->(m:Matrix)
+          WHERE m.name IN ["C", "F", "D"] AND s.name IN ["Requirements", "Objectives", "Solution Objectives"]
+          OPTIONAL MATCH (m)-[:HAS_CELL]->(c:Cell)
+          OPTIONAL MATCH (c)-[:HAS_STAGE]->(stage:CellStage)
+          WHERE stage.stage = "final_resolved"
+          RETURN s.name AS stationName, m.name AS matrixName, 
+                 count(stage) AS completedCells,
+                 count(c) AS totalCells
+          ORDER BY 
+            CASE s.name 
+              WHEN "Requirements" THEN 1
+              WHEN "Objectives" THEN 2  
+              WHEN "Solution Objectives" THEN 3
+            END
+        `);
+
+        const phase1Status = result.records.map(record => ({
+          station: record.get('stationName'),
+          matrix: record.get('matrixName'),
+          completedCells: record.get('completedCells').toNumber(),
+          totalCells: record.get('totalCells').toNumber(),
+          progress: record.get('totalCells').toNumber() > 0 
+            ? (record.get('completedCells').toNumber() / record.get('totalCells').toNumber() * 100).toFixed(1)
+            : 0
+        }));
+
+        const isComplete = phase1Status.every(status => status.completedCells > 0);
+
+        return NextResponse.json({ 
+          ok: true, 
+          phase1Status,
+          isComplete,
+          summary: `${phase1Status.reduce((sum, s) => sum + s.completedCells, 0)} cells completed across ${phase1Status.length} matrices`
+        });
       }
 
       // Get Phase-2 Document Synthesis matrices

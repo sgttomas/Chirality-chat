@@ -15,9 +15,9 @@ export async function POST(request: NextRequest) {
       return new Response('Missing message', { status: 400 })
     }
 
-    // Create the request body for OpenAI Responses API
+    // Create the request body for OpenAI API
     const openaiBody = {
-      model: 'gpt-4.1-nano',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
@@ -30,10 +30,7 @@ export async function POST(request: NextRequest) {
       ],
       stream: true,
       temperature: 0.7,
-      max_tokens: 2000,
-      response_format: {
-        type: 'text'
-      }
+      max_tokens: 2000
     }
 
     // Make the API call to OpenAI
@@ -41,8 +38,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'OpenAI-Beta': 'responses-2024-12-17'
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify(openaiBody)
     })

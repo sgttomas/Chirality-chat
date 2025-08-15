@@ -5,6 +5,9 @@ import { Card, CardHeader, CardContent } from '@/components/ui'
 import { DocumentViewer } from './DocumentViewer'
 import { DocumentControls } from './DocumentControls'
 import { useQuery } from '@tanstack/react-query'
+import { parseCellValue, type DS, type SP, type X, type Z, type M, type LlmTriple } from '@/lib/parseCellValue'
+import { formatDSTableMarkdown, formatBundleMarkdown } from '@/lib/prompt/formatters.table'
+import { dsTriplesToCsv, downloadCsv } from '@/lib/export/dsCsv'
 import type { DocumentSynthesisMatrix } from '@/lib/graphql/types'
 
 interface DocumentBuilderProps {
@@ -83,7 +86,7 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
     return true
   })
 
-  const handleExport = async (format: 'markdown' | 'pdf' | 'json') => {
+  const handleExport = async (format: 'markdown' | 'pdf' | 'json' | 'csv') => {
     try {
       const exportData = {
         matrix: selectedMatrix,
@@ -107,6 +110,15 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
         a.download = `${selectedMatrix}_${new Date().toISOString().split('T')[0]}.json`
         a.click()
         URL.revokeObjectURL(url)
+      } else if (format === 'csv' && selectedMatrix === 'DS') {
+        // Use the specialized DS CSV exporter
+        const triples = filteredData.map(cell => parseCellValue<DS>(cell.value))
+        const csv = dsTriplesToCsv(triples, {
+          includeTerms: true,
+          includeWarnings: true,
+          delimiter: ','
+        })
+        downloadCsv(`${selectedMatrix}_${new Date().toISOString().split('T')[0]}.csv`, csv)
       } else if (format === 'markdown') {
         const markdown = generateMarkdown(exportData)
         const blob = new Blob([markdown], { type: 'text/markdown' })
@@ -132,27 +144,68 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
       return markdown + 'No data available.\n'
     }
 
-    // Generate table based on matrix type
+    // Generate table based on matrix type using safe parsing
     if (selectedMatrix === 'DS') {
-      markdown += '| Data Field | Units | Type | Source Refs | Notes |\n'
-      markdown += '|------------|--------|------|-------------|-------|\n'
-      data.forEach((cell: any) => {
-        const parsed = JSON.parse(cell.value || '{}')
-        markdown += `| ${parsed.dataField || ''} | ${parsed.units || ''} | ${parsed.type || ''} | ${parsed.sourceRefs?.join(', ') || ''} | ${parsed.notes || ''} |\n`
+      // Use the specialized DS table formatter
+      markdown += '## Data Sheet Entries\n\n'
+      data.forEach((cell: any, index: number) => {
+        const triple = parseCellValue<DS>(cell.value)
+        if (triple) {
+          markdown += `### Entry ${index + 1} (${cell.labels?.rowLabel || cell.row}, ${cell.labels?.colLabel || cell.col})\n\n`
+          markdown += formatDSTableMarkdown(triple) + '\n\n'
+        }
       })
     } else if (selectedMatrix === 'SP') {
       markdown += '| Step | Purpose | Inputs | Outputs | Preconditions | Postconditions |\n'
       markdown += '|------|---------|--------|---------|---------------|----------------|\n'
       data.forEach((cell: any) => {
-        const parsed = JSON.parse(cell.value || '{}')
-        markdown += `| ${parsed.step || ''} | ${parsed.purpose || ''} | ${parsed.inputs?.join(', ') || ''} | ${parsed.outputs?.join(', ') || ''} | ${parsed.preconditions?.join(', ') || ''} | ${parsed.postconditions?.join(', ') || ''} |\n`
+        const triple = parseCellValue<SP>(cell.value)
+        if (triple && triple.text) {
+          const t = triple.text
+          markdown += `| ${t.step || ''} | ${t.purpose || ''} | ${t.inputs?.join(', ') || ''} | ${t.outputs?.join(', ') || ''} | ${t.preconditions?.join(', ') || ''} | ${t.postconditions?.join(', ') || ''} |\n`
+        }
       })
     } else if (selectedMatrix === 'Z') {
       markdown += '| Item | Rationale | Acceptance Criteria | Evidence | Severity |\n'
       markdown += '|------|-----------|---------------------|----------|----------|\n'
       data.forEach((cell: any) => {
-        const parsed = JSON.parse(cell.value || '{}')
-        markdown += `| ${parsed.item || ''} | ${parsed.rationale || ''} | ${parsed.acceptanceCriteria || ''} | ${parsed.evidence || ''} | ${parsed.severity || ''} |\n`
+        const triple = parseCellValue<Z>(cell.value)
+        if (triple && triple.text) {
+          const t = triple.text
+          markdown += `| ${t.item || ''} | ${t.rationale || ''} | ${t.acceptance_criteria || ''} | ${t.evidence?.join(', ') || ''} | ${t.severity || ''} |\n`
+        }
+      })
+    } else if (selectedMatrix === 'X') {
+      markdown += '## Guidance Documents\n\n'
+      data.forEach((cell: any, index: number) => {
+        const triple = parseCellValue<X>(cell.value)
+        if (triple && triple.text) {
+          const t = triple.text
+          markdown += `### ${t.heading || `Section ${index + 1}`}\n\n`
+          markdown += `${t.narrative || ''}\n\n`
+          if (t.precedents?.length) {
+            markdown += `**Precedents:** ${t.precedents.join(', ')}\n\n`
+          }
+          if (t.successors?.length) {
+            markdown += `**Successors:** ${t.successors.join(', ')}\n\n`
+          }
+        }
+      })
+    } else if (selectedMatrix === 'M') {
+      markdown += '## Solution Statements\n\n'
+      data.forEach((cell: any, index: number) => {
+        const triple = parseCellValue<M>(cell.value)
+        if (triple && triple.text) {
+          const t = triple.text
+          markdown += `### Statement ${index + 1}\n\n`
+          markdown += `**Statement:** ${t.statement || ''}\n\n`
+          if (t.justification) {
+            markdown += `**Justification:** ${t.justification}\n\n`
+          }
+          if (t.assumptions?.length) {
+            markdown += `**Assumptions:** ${t.assumptions.join(', ')}\n\n`
+          }
+        }
       })
     } else {
       // Generic format for other matrices

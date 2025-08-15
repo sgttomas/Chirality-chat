@@ -43,11 +43,12 @@ export class OrchestratorClient {
   private apiBase: string
 
   constructor(
-    orchestratorUrl = 'http://localhost:3001',
+    orchestratorUrl?: string,
     authToken?: string
   ) {
-    this.baseUrl = orchestratorUrl
-    this.authToken = authToken || process.env.ORCHESTRATOR_TOKEN
+    // Use NEXT_PUBLIC_ environment variables for client-side access
+    this.baseUrl = orchestratorUrl || process.env.NEXT_PUBLIC_ORCHESTRATOR_URL || 'http://localhost:3001'
+    this.authToken = authToken || (typeof window === 'undefined' ? process.env.ORCHESTRATOR_TOKEN : undefined)
     
     // Derive API base from GraphQL URL, ensuring no /graphql suffix
     const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/graphql'
