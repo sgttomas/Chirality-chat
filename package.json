@@ -1,16 +1,52 @@
 {
   "name": "chirality-chat",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Graph-free chat interface for the Chirality Framework with semantic document generation and RAG integration",
+  "private": false,
+  "license": "MIT",
+  "author": "Chirality Framework Team",
+  "homepage": "https://github.com/sgttomas/Chirality-chat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sgttomas/Chirality-chat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sgttomas/Chirality-chat/issues"
+  },
+  "keywords": [
+    "chirality",
+    "semantic",
+    "chat",
+    "ai",
+    "documents",
+    "rag",
+    "openai",
+    "nextjs",
+    "typescript"
+  ],
   "sideEffects": [
     "*.css",
     "**/*.css"
   ],
   "scripts": {
     "dev": "TURBOPACK=1 next dev",
+    "dev:webpack": "TURBOPACK=0 next dev",
     "build": "next build",
     "start": "next start",
-    "smoke:rest": "node scripts/smoke-rest.mjs"
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"Tests not yet implemented\" && exit 0",
+    "test:e2e": "echo \"E2E tests not yet implemented\" && exit 0",
+    "smoke:rest": "node scripts/smoke-rest.mjs",
+    "health": "curl -f http://localhost:3000/api/healthz || echo 'Server not running'",
+    "debug": "curl -s http://localhost:3000/api/chat/debug | jq",
+    "state": "curl -s http://localhost:3000/api/core/state | jq",
+    "state:clear": "curl -X DELETE http://localhost:3000/api/core/state",
+    "docs:serve": "echo 'Documentation available in README.md, ONBOARDING.md, and CLAUDE*.md files'",
+    "analyze": "ANALYZE=true npm run build",
+    "clean": "rm -rf .next && rm -rf node_modules && npm install",
+    "fresh": "npm run clean && npm run dev",
+    "setup": "npm install && echo 'Add OPENAI_API_KEY to .env.local and run: npm run dev'"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
@@ -33,5 +69,16 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.40",
     "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "optionalDependencies": {
+    "neo4j-driver": "^5.22.0"
+  },
+  "overrides": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
