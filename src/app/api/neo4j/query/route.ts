@@ -24,23 +24,25 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: true, message });
       }
 
-      // Get all matrices stored in Neo4j
+      // Get all matrices stored in Neo4j (updated for new schema)
       if (query_type === 'get_matrices') {
         const result = await session.run(`
-          MATCH (m:Matrix)
-          RETURN m.id AS id, m.name AS name, m.type AS type, 
-                 m.rows AS rows, m.cols AS cols, m.created AS created
-          ORDER BY m.created DESC
+          MATCH (s:Station)-[:HAS_MATRIX]->(m:Matrix)
+          OPTIONAL MATCH (m)-[:HAS_CELL]->(c:Cell)
+          RETURN s.name AS stationName, m.name AS name, m.title AS title, 
+                 m.matrixKey AS matrixKey, m.createdAt AS created,
+                 count(c) AS cellCount
+          ORDER BY m.createdAt DESC
           LIMIT 20
         `);
         
         const matrices = result.records.map(record => ({
-          id: record.get('id'),
+          stationName: record.get('stationName'),
           name: record.get('name'),
-          type: record.get('type'),
-          rows: record.get('rows'),
-          cols: record.get('cols'),
-          created: record.get('created')
+          title: record.get('title'),
+          matrixKey: record.get('matrixKey'),
+          created: record.get('created'),
+          cellCount: record.get('cellCount').toNumber()
         }));
         
         return NextResponse.json({ ok: true, matrices });
@@ -121,6 +123,158 @@ export async function POST(req: NextRequest) {
         });
         
         return NextResponse.json({ ok: true, records });
+      }
+
+      // Get stations with their matrices
+      if (query_type === 'get_stations') {
+        const result = await session.run(`
+          MATCH (s:Station)
+          OPTIONAL MATCH (s)-[:HAS_MATRIX]->(m:Matrix)
+          OPTIONAL MATCH (m)-[:HAS_CELL]->(c:Cell)
+          RETURN s.name AS name, s.index AS index, s.createdAt AS createdAt,
+                 collect(DISTINCT {
+                   name: m.name,
+                   title: m.title,
+                   matrixKey: m.matrixKey,
+                   cellCount: size((m)-[:HAS_CELL]->())
+                 }) AS matrices
+          ORDER BY s.index
+        `);
+        
+        const stations = result.records.map(record => ({
+          name: record.get('name'),
+          index: record.get('index').toNumber(),
+          createdAt: record.get('createdAt'),
+          matrices: record.get('matrices').filter((m: any) => m.name)
+        }));
+        
+        return NextResponse.json({ ok: true, stations });
+      }
+
+      // Get cell data with stages
+      if (query_type === 'get_cell') {
+        const { stationName, matrixName, row, col } = params || {};
+        if (!stationName || !matrixName || row === undefined || col === undefined) {
+          return NextResponse.json({ ok: false, error: 'Missing required parameters' }, { status: 400 });
+        }
+
+        const result = await session.run(`
+          MATCH (s:Station {name: $stationName})-[:HAS_MATRIX]->(m:Matrix {name: $matrixName})
+          MATCH (m)-[:HAS_CELL]->(c:Cell {row: $row, col: $col})
+          OPTIONAL MATCH (c)-[:HAS_STAGE]->(stage:CellStage)
+          RETURN c.labels AS labels, 
+                 collect({
+                   stage: stage.stage,
+                   value: stage.value,
+                   modelId: stage.modelId,
+                   promptHash: stage.promptHash,
+                   latencyMs: stage.latencyMs,
+                   warnings: stage.warnings,
+                   meta: stage.meta,
+                   createdAt: stage.createdAt,
+                   contentHash: stage.contentHash,
+                   version: stage.version
+                 }) AS stages
+        `, { stationName, matrixName, row: parseInt(row), col: parseInt(col) });
+
+        if (result.records.length === 0) {
+          return NextResponse.json({ ok: false, error: 'Cell not found' }, { status: 404 });
+        }
+
+        const record = result.records[0];
+        const cell = {
+          matrixKey: `${stationName}::${matrixName}`,
+          row: parseInt(row),
+          col: parseInt(col),
+          labels: record.get('labels'),
+          stages: record.get('stages').filter((s: any) => s.stage)
+        };
+
+        return NextResponse.json({ ok: true, cell });
+      }
+
+      // Get matrix overview
+      if (query_type === 'get_matrix_overview') {
+        const { stationName, matrixName } = params || {};
+        if (!stationName || !matrixName) {
+          return NextResponse.json({ ok: false, error: 'Missing stationName or matrixName' }, { status: 400 });
+        }
+
+        const result = await session.run(`
+          MATCH (s:Station {name: $stationName})-[:HAS_MATRIX]->(m:Matrix {name: $matrixName})
+          OPTIONAL MATCH (m)-[:HAS_AXIS]->(ax:Axis)
+          OPTIONAL MATCH (ax)-[r:HAS_LABEL]->(lbl:Label)
+          OPTIONAL MATCH (m)-[:HAS_CELL]->(c:Cell)
+          OPTIONAL MATCH (c)-[:HAS_STAGE]->(stage:CellStage)
+          RETURN m.name AS name, m.title AS title, m.matrixKey AS matrixKey,
+                 m.createdAt AS createdAt,
+                 collect(DISTINCT {
+                   kind: ax.kind,
+                   labels: [(ax)-[:HAS_LABEL]->(l) | {index: r.index, value: l.value}]
+                 }) AS axes,
+                 collect(DISTINCT {
+                   row: c.row,
+                   col: c.col,
+                   labels: c.labels,
+                   latestStage: head([(c)-[:HAS_STAGE]->(s) | s ORDER BY s.createdAt DESC])
+                 }) AS cells
+        `, { stationName, matrixName });
+
+        if (result.records.length === 0) {
+          return NextResponse.json({ ok: false, error: 'Matrix not found' }, { status: 404 });
+        }
+
+        const record = result.records[0];
+        const matrix = {
+          name: record.get('name'),
+          title: record.get('title'),
+          matrixKey: record.get('matrixKey'),
+          stationName,
+          createdAt: record.get('createdAt'),
+          axes: record.get('axes').filter((a: any) => a.kind),
+          cells: record.get('cells').filter((c: any) => c.row !== null)
+        };
+
+        return NextResponse.json({ ok: true, matrix });
+      }
+
+      // Get Phase-2 Document Synthesis matrices
+      if (query_type === 'get_document_synthesis') {
+        const result = await session.run(`
+          MATCH (s:Station {name: "Document Synthesis"})-[:HAS_MATRIX]->(m:Matrix)
+          WHERE m.name IN ["DS", "SP", "X", "Z", "M", "W", "U", "N"]
+          OPTIONAL MATCH (m)-[:HAS_CELL]->(c:Cell)
+          OPTIONAL MATCH (c)-[:HAS_STAGE]->(stage:CellStage)
+          WHERE stage.stage = "doc_finalize" OR stage.stage = "final_resolved"
+          RETURN m.name AS matrixName, m.title AS title,
+                 collect({
+                   row: c.row,
+                   col: c.col,
+                   labels: c.labels,
+                   value: stage.value,
+                   meta: stage.meta,
+                   createdAt: stage.createdAt
+                 }) AS cells
+          ORDER BY 
+            CASE m.name 
+              WHEN "DS" THEN 1
+              WHEN "SP" THEN 2
+              WHEN "X" THEN 3
+              WHEN "Z" THEN 4
+              WHEN "M" THEN 5
+              WHEN "W" THEN 6
+              WHEN "U" THEN 7
+              WHEN "N" THEN 8
+            END
+        `);
+
+        const matrices = result.records.map(record => ({
+          name: record.get('matrixName'),
+          title: record.get('title'),
+          cells: record.get('cells').filter((c: any) => c.value)
+        }));
+
+        return NextResponse.json({ ok: true, matrices });
       }
 
       // Get database statistics

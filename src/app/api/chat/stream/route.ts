@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     // Create the request body for OpenAI Responses API
     const openaiBody = {
-      model: 'gpt-4o-mini',
+      model: 'gpt-4.1-nano',
       messages: [
         {
           role: 'system',

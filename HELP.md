@@ -159,7 +159,7 @@ The app uses OpenAI's Responses API with streaming:
 ```typescript
 // API Route: /src/app/api/chat/stream/route.ts
 - Uses Server-Sent Events (SSE) for real-time streaming
-- Configured for gpt-4o-mini model
+- Configured for gpt-4.1-nano model
 - Supports system prompts for Chirality Framework context
 ```
 

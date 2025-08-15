@@ -9,6 +9,7 @@ import { ApprovalDialog } from './ApprovalDialog'
 import { useMCPClient } from '@/hooks/useMCPClient'
 import { getMCPDiscoveryService } from '@/lib/mcp/discovery'
 import { getMCPApprovalManager, initializeDefaultApprovalRules } from '@/lib/mcp/approval'
+import { CHIRALITY_MCP_TOOLS, ChiralityMCPTools } from '@/lib/mcp/chirality-tools'
 import type { 
   MCPServer, 
   MCPTool, 
@@ -38,11 +39,27 @@ export function MCPPanel({ onToolResult, className }: MCPPanelProps) {
   const [activeTab, setActiveTab] = useState<'servers' | 'tools' | 'invocation'>('servers')
   const [approvalFlow, setApprovalFlow] = useState<MCPApprovalFlow | null>(null)
   const [showApprovalDialog, setShowApprovalDialog] = useState(false)
+  const [chiralityTools] = useState(() => new ChiralityMCPTools())
 
-  // Initialize default approval rules on component mount
+  // Initialize default approval rules and Chirality tools on component mount
   useEffect(() => {
     initializeDefaultApprovalRules()
-  }, [])
+    
+    // Add virtual Chirality server with built-in tools
+    const chiralityServer: MCPConnectionConfig = {
+      serverId: 'chirality-local',
+      name: 'Chirality Framework',
+      description: 'Built-in tools for the Chirality Framework pipeline',
+      transport: 'builtin'
+    }
+    
+    // Add the server with tools
+    addServer(chiralityServer).then((server) => {
+      // Manually set the tools since it's a local server
+      server.tools = CHIRALITY_MCP_TOOLS
+      server.status = 'connected'
+    }).catch(console.error)
+  }, [addServer])
 
   // Auto-select first connected server
   useEffect(() => {
