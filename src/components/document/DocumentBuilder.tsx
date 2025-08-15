@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { parseCellValue, type DS, type SP, type X, type Z, type M, type LlmTriple } from '@/lib/parseCellValue'
 import { formatDSTableMarkdown, formatBundleMarkdown } from '@/lib/prompt/formatters.table'
 import { dsTriplesToCsv, downloadCsv } from '@/lib/export/dsCsv'
+import { smartSerialize } from '@/lib/serializers'
 import type { DocumentSynthesisMatrix } from '@/lib/graphql/types'
 
 interface DocumentBuilderProps {
@@ -45,10 +46,74 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
     version?: string
   }>({})
 
-  // Fetch Document Synthesis matrices data
+  // Fetch Document Synthesis matrices data from Chirality Core
   const { data: docData, isLoading, error, refetch } = useQuery({
     queryKey: ['documentSynthesis'],
     queryFn: async () => {
+      // First try to get data from Chirality Core
+      try {
+        const coreResponse = await fetch('/api/core/state')
+        if (coreResponse.ok) {
+          const coreData = await coreResponse.json()
+          
+          // Transform Chirality Core data to DocumentData format
+          // IMPORTANT: Serialize Triple objects to strings for parseCellValue
+          const transformed: DocumentData = {}
+          
+          if (coreData.finals?.DS) {
+            // Use smart serialization to handle Triple format properly
+            const serialized = smartSerialize(coreData.finals.DS)
+            transformed.DS = [{
+              value: serialized,
+              row: 0,
+              col: 0,
+              confidence: 1.0
+            }]
+          }
+          
+          if (coreData.finals?.SP) {
+            // Use smart serialization to handle Triple format properly
+            const serialized = smartSerialize(coreData.finals.SP)
+            transformed.SP = [{
+              value: serialized,
+              row: 0,
+              col: 0,
+              confidence: 1.0
+            }]
+          }
+          
+          if (coreData.finals?.X) {
+            // Use smart serialization to handle Triple format properly
+            const serialized = smartSerialize(coreData.finals.X)
+            transformed.X = [{
+              value: serialized,
+              row: 0,
+              col: 0,
+              confidence: 1.0
+            }]
+          }
+          
+          if (coreData.finals?.M) {
+            // Use smart serialization to handle Triple format properly
+            const serialized = smartSerialize(coreData.finals.M)
+            transformed.M = [{
+              value: serialized,
+              row: 0,
+              col: 0,
+              confidence: 1.0
+            }]
+          }
+          
+          // If we have Core data, return it
+          if (Object.keys(transformed).length > 0) {
+            return transformed
+          }
+        }
+      } catch (e) {
+        console.log('Chirality Core not available, falling back to Neo4j')
+      }
+      
+      // Fall back to Neo4j query
       const response = await fetch('/api/neo4j/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

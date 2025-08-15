@@ -25,6 +25,7 @@ export function ChiralityChat({ className }: ChiralityChatProps) {
   const [currentStep, setCurrentStep] = useState<'input' | 'phase1' | 'phase2' | 'results'>('input')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationLogs, setGenerationLogs] = useState<string[]>([])
+  const [useCore, setUseCore] = useState(true) // Use Chirality Core by default
 
   // Get Phase-1 matrices status
   const { data: phase1Status } = useQuery({
@@ -102,6 +103,81 @@ export function ChiralityChat({ className }: ChiralityChatProps) {
       setGenerationLogs(prev => [...prev, `✓ Generating Solution Objectives matrix (${dJob.jobId})`])
 
       setGenerationLogs(prev => [...prev, '✅ Phase-1 complete! Ready for Phase-2 Document Synthesis'])
+    } catch (error) {
+      setGenerationLogs(prev => [...prev, `❌ Error: ${error}`])
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  // NEW: Generate documents using Chirality Core (graph-free)
+  const handleGenerateWithCore = async () => {
+    if (!problemStatement.trim()) {
+      alert('Please enter a problem statement')
+      return
+    }
+
+    setIsGenerating(true)
+    setCurrentStep('phase2')
+    setGenerationLogs(['Using Chirality Core (graph-free) for document generation...'])
+
+    try {
+      // Set the problem in Core
+      await fetch('/api/core/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          problem: {
+            title: 'User Defined Problem',
+            statement: problemStatement,
+            initialVector: initialVector.length > 0 ? initialVector : ['analysis', 'solution', 'implementation']
+          }
+        })
+      })
+      setGenerationLogs(prev => [...prev, '✓ Problem statement set in Chirality Core'])
+
+      // Generate DS
+      setGenerationLogs(prev => [...prev, '⏳ Generating Data Sheet (DS)...'])
+      const dsResponse = await fetch('/api/core/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'DS' })
+      })
+      const dsResult = await dsResponse.json()
+      setGenerationLogs(prev => [...prev, `✓ DS generated in ${(dsResult.latencyMs/1000).toFixed(1)}s`])
+
+      // Generate SP
+      setGenerationLogs(prev => [...prev, '⏳ Generating Procedural Checklist (SP)...'])
+      const spResponse = await fetch('/api/core/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'SP' })
+      })
+      const spResult = await spResponse.json()
+      setGenerationLogs(prev => [...prev, `✓ SP generated in ${(spResult.latencyMs/1000).toFixed(1)}s`])
+
+      // Generate X
+      setGenerationLogs(prev => [...prev, '⏳ Generating Solution Template (X)...'])
+      const xResponse = await fetch('/api/core/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'X' })
+      })
+      const xResult = await xResponse.json()
+      setGenerationLogs(prev => [...prev, `✓ X generated in ${(xResult.latencyMs/1000).toFixed(1)}s`])
+
+      // Generate M
+      setGenerationLogs(prev => [...prev, '⏳ Generating Guidance (M)...'])
+      const mResponse = await fetch('/api/core/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'M' })
+      })
+      const mResult = await mResponse.json()
+      setGenerationLogs(prev => [...prev, `✓ M generated in ${(mResult.latencyMs/1000).toFixed(1)}s`])
+
+      setGenerationLogs(prev => [...prev, '', '✅ All 4 documents generated successfully!'])
+      setCurrentStep('results')
     } catch (error) {
       setGenerationLogs(prev => [...prev, `❌ Error: ${error}`])
     } finally {
@@ -262,13 +338,28 @@ export function ChiralityChat({ className }: ChiralityChatProps) {
               </Button>
             </div>
 
-            <Button 
-              onClick={handleStartPhase1}
-              disabled={!problemStatement.trim() || isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? 'Starting Phase-1...' : 'Start Phase-1: Problem Analysis'}
-            </Button>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                <input 
+                  type="checkbox" 
+                  id="useCore"
+                  checked={useCore}
+                  onChange={(e) => setUseCore(e.target.checked)}
+                />
+                <label htmlFor="useCore" className="text-sm text-gray-600">
+                  Use Chirality Core (graph-free, recommended)
+                </label>
+              </div>
+              
+              <Button 
+                onClick={useCore ? handleGenerateWithCore : handleStartPhase1}
+                disabled={!problemStatement.trim() || isGenerating}
+                className="w-full"
+              >
+                {isGenerating ? 'Generating Documents...' : 
+                 useCore ? 'Generate 4 Documents (DS→SP→X→M)' : 'Start Phase-1: Problem Analysis'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
