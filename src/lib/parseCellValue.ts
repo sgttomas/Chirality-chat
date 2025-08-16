@@ -1,7 +1,8 @@
 // Safe JSON parsing for cell values with proper TypeScript typing
 
-// Re-export core types from prompt contracts for consistency
-export type { DS, SP, X, Z, M, LlmTriple } from './prompt/llmContracts'
+// Import and re-export core types from prompt contracts for consistency
+import type { DS, SP, X, Z, M, LlmTriple } from './prompt/llmContracts'
+export type { DS, SP, X, Z, M, LlmTriple }
 
 // Additional types for iteration matrices (W/U/N)
 export interface W {

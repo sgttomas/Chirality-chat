@@ -38,7 +38,7 @@ export function OntologyChips({
         />
       ))}
       {hiddenCount > 0 && (
-        <Badge variant="outline" className="text-xs">
+        <Badge variant="default" className="text-xs">
           +{hiddenCount} more
         </Badge>
       )}

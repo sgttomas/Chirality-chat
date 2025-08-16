@@ -1,9 +1,13 @@
 'use client'
 
-import { ReactNode } from 'react'
-interface CardProps {
+import React, { ReactNode } from 'react'
+
+export type CardProps = React.HTMLAttributes<HTMLDivElement> & {
   children: ReactNode
   className?: string
+  onClick?: React.MouseEventHandler<HTMLDivElement>
+  role?: string
+  tabIndex?: number
 }
 interface CardHeaderProps {
   children: ReactNode
@@ -13,9 +17,9 @@ interface CardContentProps {
   children: ReactNode
   className?: string
 }
-export function Card({ children, className = '' }: CardProps) {
+export function Card({ children, className = '', ...props }: CardProps) {
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm ${className}`} {...props}>
       {children}
     </div>
   )

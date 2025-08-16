@@ -69,13 +69,24 @@ export const MatrixCanvas = memo(function MatrixCanvas({
     }
   }, [])
 
+  // Extend controls type locally so TS knows pan/zoom may exist
+  type Controls = {
+    zoomToFit: () => void
+    resetView: () => void
+    clearSelection: () => void
+    pan?: (dx: number, dy: number) => void
+    zoom?: (z: number) => void
+  }
+
   // Set up interactions with stable callbacks
-  const { viewport, interactions, handlers, controls } = useMatrixInteractions({
+  const { viewport, interactions, handlers, controls: rawControls } = useMatrixInteractions({
     matrix,
     renderer: rendererRef.current,
     onSelectionChange: stableOnSelectionChange,
     onNodeHover: stableOnNodeHover
   })
+  
+  const controls: Controls = rawControls as Controls
 
   // Auto-fit to matrix when it changes
   useEffect(() => {
@@ -118,15 +129,20 @@ export const MatrixCanvas = memo(function MatrixCanvas({
 
   // Accessibility: Keyboard navigation
   const keyboardHandler = useMemo(() => createKeyboardHandler({
-    [KeyboardKeys.ARROW_UP]: () => controls.pan(0, -50),
-    [KeyboardKeys.ARROW_DOWN]: () => controls.pan(0, 50),
-    [KeyboardKeys.ARROW_LEFT]: () => controls.pan(-50, 0),
-    [KeyboardKeys.ARROW_RIGHT]: () => controls.pan(50, 0),
-    [KeyboardKeys.PAGE_UP]: () => controls.zoom(viewport.zoom * 1.2),
-    [KeyboardKeys.PAGE_DOWN]: () => controls.zoom(viewport.zoom * 0.8),
+    [KeyboardKeys.ARROW_UP]: () => controls.pan?.(0, -50),
+    [KeyboardKeys.ARROW_DOWN]: () => controls.pan?.(0, 50),
+    [KeyboardKeys.ARROW_LEFT]: () => controls.pan?.(-50, 0),
+    [KeyboardKeys.ARROW_RIGHT]: () => controls.pan?.(50, 0),
+    [KeyboardKeys.PAGE_UP]: () => controls.zoom?.(viewport.zoom * 1.2),
+    [KeyboardKeys.PAGE_DOWN]: () => controls.zoom?.(viewport.zoom * 0.8),
     [KeyboardKeys.HOME]: () => controls.zoomToFit(),
     [KeyboardKeys.SPACE]: () => controls.resetView()
   }), [controls, viewport.zoom])
+
+  // Adapt native KeyboardEvent-returning handler to React's event type
+  const onCanvasKeyDown: React.KeyboardEventHandler<HTMLCanvasElement> = (e) => {
+    keyboardHandler(e.nativeEvent)
+  }
 
   // Accessibility: Announce matrix changes
   useEffect(() => {
@@ -158,7 +174,7 @@ export const MatrixCanvas = memo(function MatrixCanvas({
         aria-label="Molecular structure visualization"
         aria-description={matrixDescription}
         tabIndex={0}
-        onKeyDown={keyboardHandler}
+        onKeyDown={onCanvasKeyDown}
         {...handlers}
       />
       

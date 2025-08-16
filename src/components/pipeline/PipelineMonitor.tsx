@@ -232,7 +232,7 @@ export function PipelineMonitor({
             {selectedJobId && (
               <Button
                 size="sm"
-                variant="outline"
+                variant="default"
                 onClick={disconnectFromLogs}
               >
                 Disconnect
@@ -259,7 +259,7 @@ export function PipelineMonitor({
                   <div className="flex space-x-2">
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="default"
                       onClick={() => connectToJobLogs(job.id)}
                       disabled={selectedJobId === job.id}
                     >
@@ -311,7 +311,7 @@ export function PipelineMonitor({
                   </div>
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="default"
                     onClick={() => connectToJobLogs(job.id)}
                     disabled={selectedJobId === job.id}
                   >

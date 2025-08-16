@@ -1,6 +1,6 @@
 // Prompt builder exports
 
-export { buildFromPullCell, composeCellPrompt } from './builders'
+export { buildFromPullCell } from './builders'
 export { guard } from './validators'
 export { TEMPS } from './temperatures'
 export { buildSystemPromptBracketedValley } from './system'

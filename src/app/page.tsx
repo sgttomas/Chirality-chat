@@ -15,10 +15,16 @@ export default function Home() {
             
             <nav className="flex space-x-4">
               <Link 
-                href="/chirality"
+                href="/chirality-core"
                 className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
               >
-                🧬 Chirality Framework
+                🧬 Chirality Core
+              </Link>
+              <Link 
+                href="/chirality"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                🔬 Chirality Framework
               </Link>
               <Link 
                 href="/enhanced-dashboard"

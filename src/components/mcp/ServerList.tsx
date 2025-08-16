@@ -109,7 +109,7 @@ export function ServerList({ onServerSelect, selectedServerId }: ServerListProps
                   <div className="flex items-center gap-2">
                     {/* Tool count */}
                     {server.tools.length > 0 && (
-                      <Badge variant="outline" size="sm">
+                      <Badge variant="default" size="sm">
                         {server.tools.length} tool{server.tools.length !== 1 ? 's' : ''}
                       </Badge>
                     )}

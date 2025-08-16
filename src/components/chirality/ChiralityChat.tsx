@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Card, CardHeader, CardContent, Button, Input } from '@/components/ui'
 import { DocumentBuilder } from '@/components/document'
-import { MatrixPanel } from '@/components/matrix'
+import { SemanticMatrixViewer } from '@/components/matrix/SemanticMatrixViewer'
 import { PipelineMonitor } from '@/components/pipeline'
 import { startJob, buildArgs } from '@/lib/orchestratorClient'
 import { parseCellValue, type DS, type SP, type X, type M } from '@/lib/parseCellValue'
@@ -333,7 +333,7 @@ export function ChiralityChat({ className }: ChiralityChatProps) {
                   </span>
                 ))}
               </div>
-              <Button variant="outline" onClick={addInitialVectorToken}>
+              <Button variant="secondary" onClick={addInitialVectorToken}>
                 + Add Token
               </Button>
             </div>
@@ -404,7 +404,7 @@ export function ChiralityChat({ className }: ChiralityChatProps) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <h2 className="text-xl font-semibold">Generated Documents</h2>
-              <Button onClick={handleExportAll} variant="outline">
+              <Button onClick={handleExportAll} variant="secondary">
                 Export All as Markdown
               </Button>
             </CardHeader>
@@ -424,7 +424,7 @@ export function ChiralityChat({ className }: ChiralityChatProps) {
               <h3 className="text-lg font-semibold">Semantic Matrix View</h3>
             </CardHeader>
             <CardContent>
-              <MatrixPanel 
+              <SemanticMatrixViewer 
                 stationName="Document Synthesis"
                 matrixName="DS"
                 includeOntologies={true}
@@ -442,7 +442,7 @@ export function ChiralityChat({ className }: ChiralityChatProps) {
         <Card>
           <CardContent className="text-center">
             <Button 
-              variant="outline" 
+              variant="secondary" 
               onClick={() => {
                 setCurrentStep('input')
                 setProblemStatement('')

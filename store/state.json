@@ -1,7 +1,7 @@
 {
   "problem": {
-    "title": "User Problem",
-    "statement": "what do consider when welding carbon steel pipe to stainless steel pipe",
+    "title": "User Defined Problem",
+    "statement": "how to weld carbon steel pipe to stainless steel pipe",
     "initialVector": [
       "analysis",
       "solution",
@@ -11,96 +11,39 @@
   "finals": {
     "DS": {
       "text": {
-        "data_field": "When welding a carbon steel pipe to a stainless steel pipe, key considerations include verifying material compatibility to prevent galvanic corrosion, selecting appropriate welding techniques such as TIG or MIG, managing differences in thermal expansion to prevent distortion or cracking, choosing suitable filler materials compatible with both metals, and applying proper pre- and post-weld treatments like cleaning and passivation. Inspection and nondestructive testing are essential to verify joint integrity and quality.",
-        "units": "N/A",
-        "type": "guideline",
-        "source_refs": [
-          "CIT:src#1",
-          "CIT:src#2"
-        ],
-        "notes": "Based on established welding standards and guidelines for dissimilar metal welding."
+        "data_field": "Error generating document"
       },
-      "terms_used": [
-        "material compatibility",
-        "galvanic corrosion",
-        "welding techniques",
-        "thermal expansion",
-        "filler materials",
-        "pre- and post-weld treatments",
-        "inspection",
-        "non-destructive testing"
-      ],
-      "warnings": []
+      "terms_used": [],
+      "warnings": [
+        "Generation failed: DS payload invalid"
+      ]
     },
     "SP": {
       "text": {
-        "step": "Identify key considerations for welding carbon steel to stainless steel pipes, including material compatibility, welding techniques, thermal management, filler material selection, pre- and post-weld treatments, and inspection protocols.",
-        "purpose": "To develop comprehensive guidelines ensuring a high-quality, corrosion-resistant weld between different pipe materials.",
-        "inputs": "Material specifications, welding standards, environmental conditions, inspection procedures.",
-        "outputs": "A detailed set of welding considerations and procedures that ensure joint integrity and durability.",
-        "preconditions": "Availability of compatible materials, trained personnel, appropriate equipment, and adherence to relevant standards.",
-        "postconditions": "Welded joint meeting quality, safety, and corrosion resistance requirements."
+        "step": "Error generating document"
       },
-      "terms_used": [
-        "material compatibility",
-        "welding techniques",
-        "thermal management",
-        "filler material",
-        "pre- and post-weld treatments",
-        "inspection protocols"
-      ],
-      "warnings": []
+      "terms_used": [],
+      "warnings": [
+        "Generation failed: Model did not return strict JSON triple"
+      ]
     },
     "X": {
       "text": {
-        "heading": "Considerations for Welding Carbon Steel to Stainless Steel Pipes",
-        "narrative": "Key considerations include verifying material compatibility to prevent galvanic corrosion, selecting appropriate welding techniques such as TIG or MIG, managing differences in thermal expansion to prevent distortion or cracking, choosing suitable filler materials compatible with both metals, applying proper pre- and post-weld treatments like cleaning and passivation, and conducting inspection and nondestructive testing to verify joint integrity and quality.",
-        "precedents": "Existing welding guidelines and standards (CIT:src#1; CIT:src#2).",
-        "successors": "Development of detailed welding procedures and quality assurance protocols."
+        "heading": "Error",
+        "narrative": "Error generating document"
       },
-      "terms_used": [
-        "welding",
-        "carbon steel",
-        "stainless steel",
-        "material compatibility",
-        "welding techniques",
-        "thermal expansion",
-        "filler materials",
-        "pre- and post-weld treatments",
-        "inspection",
-        "non-destructive testing"
-      ],
-      "warnings": []
+      "terms_used": [],
+      "warnings": [
+        "Generation failed: X payload invalid"
+      ]
     },
     "M": {
       "text": {
-        "statement": "When welding a carbon steel pipe to a stainless steel pipe, considerations include verifying material compatibility to prevent galvanic corrosion, selecting appropriate welding techniques such as TIG or MIG, managing differences in thermal expansion to prevent distortion or cracking, choosing suitable filler materials compatible with both metals, applying proper pre- and post-weld treatments like cleaning and passivation, and conducting inspection and nondestructive testing to verify joint integrity and quality.",
-        "justification": "These considerations are based on established welding guidelines and standards (CIT:src#1; CIT:src#2), addressing critical factors for joint integrity, corrosion resistance, and durability.",
-        "trace_back": [
-          "CIT:src#1",
-          "CIT:src#2"
-        ],
-        "assumptions": [
-          "Availability of compatible materials and proper equipment",
-          "Personnel trained in welding techniques for dissimilar metals"
-        ],
-        "residual_risk": "Inadequate preparation or improper technique may lead to joint failure or corrosion."
+        "statement": "Error generating document"
       },
-      "terms_used": [
-        "material compatibility",
-        "galvanic corrosion",
-        "TIG",
-        "MIG",
-        "thermal expansion",
-        "filler materials",
-        "pre- and post-weld treatments",
-        "inspection",
-        "nondestructive testing"
-      ],
+      "terms_used": [],
       "warnings": [
-        "Ensure compatibility of filler materials to prevent galvanic corrosion.",
-        "Differences in thermal expansion must be carefully managed to avoid cracking.",
-        "Proper cleaning and passivation are necessary to prevent corrosion post-welding."
+        "Generation failed: M payload invalid"
       ]
     }
   }

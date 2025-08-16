@@ -7,7 +7,7 @@ import { SemanticMatrixViewer } from '@/components/matrix/SemanticMatrixViewer'
 import { PipelineMonitor } from '@/components/pipeline'
 import { MCPPanel } from '@/components/mcp/MCPPanel'
 import { HealthIndicator } from '@/components/health'
-import { JOB_PRESETS, getOrchestratorClient } from '@/lib/orchestratorClient'
+import { JOB_PRESETS, getOrchestratorClient, toMutableArgs } from '@/lib/orchestratorClient'
 
 const STATIONS = [
   { name: 'Problem Statement', matrices: ['A'] },
@@ -37,7 +37,8 @@ export default function EnhancedDashboard() {
     try {
       const preset = JOB_PRESETS[presetName]
       const client = getOrchestratorClient()
-      const result = await client.startJob(preset.command, preset.args)
+      
+      const result = await client.startJob(preset.command, toMutableArgs(preset))
       
       setRunningJob(result.jobId)
       setActiveView('pipeline')
@@ -64,7 +65,7 @@ export default function EnhancedDashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <HealthIndicator />
+              <HealthIndicator health={{ status: 'healthy', lastChecked: new Date().toISOString() }} serviceName="System" />
             </div>
           </div>
         </div>
@@ -172,7 +173,7 @@ export default function EnhancedDashboard() {
                   <div className="space-y-2">
                     <Button 
                       className="w-full justify-start"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => setActiveView('matrix')}
                     >
                       <span className="mr-2">🔢</span>
@@ -180,7 +181,7 @@ export default function EnhancedDashboard() {
                     </Button>
                     <Button 
                       className="w-full justify-start"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => setActiveView('documents')}
                     >
                       <span className="mr-2">📝</span>
@@ -188,7 +189,7 @@ export default function EnhancedDashboard() {
                     </Button>
                     <Button 
                       className="w-full justify-start"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => setActiveView('pipeline')}
                     >
                       <span className="mr-2">🔧</span>
@@ -196,7 +197,7 @@ export default function EnhancedDashboard() {
                     </Button>
                     <Button 
                       className="w-full justify-start"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => setActiveView('mcp')}
                     >
                       <span className="mr-2">🤖</span>

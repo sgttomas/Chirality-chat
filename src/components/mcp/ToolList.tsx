@@ -94,7 +94,7 @@ export function ToolList({ selectedServerId, onToolSelect, selectedToolName }: T
                   server.status === 'connected' ? 'bg-green-500' : 'bg-gray-400'
                 }`} />
                 <h4 className="text-sm font-medium text-gray-700">{server.name}</h4>
-                <Badge variant="outline" size="sm">
+                <Badge variant="default" size="sm">
                   {tools.length} tool{tools.length !== 1 ? 's' : ''}
                 </Badge>
               </div>
@@ -132,14 +132,13 @@ export function ToolList({ selectedServerId, onToolSelect, selectedToolName }: T
                               {Object.entries(tool.inputSchema.properties).map(([name, property]) => (
                                 <Badge
                                   key={name}
-                                  variant="outline"
+                                  variant="default"
                                   size="sm"
                                   className={`text-xs ${
                                     tool.inputSchema.required?.includes(name) 
                                       ? 'border-red-300 text-red-700 bg-red-50' 
                                       : 'border-gray-300'
                                   }`}
-                                  title={property.description || `Parameter: ${name}`}
                                 >
                                   {name}: {formatPropertyType(property)}
                                   {tool.inputSchema.required?.includes(name) && '*'}

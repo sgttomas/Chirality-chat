@@ -2,6 +2,11 @@
 
 // Enhanced orchestrator client with proper auth and API base handling
 
+// ---- Commands ---------------------------------------------------------------
+export type GenerateCommand = 'generate-c' | 'generate-f' | 'generate-d' | 'verify-stages'
+export type Command = GenerateCommand | 'push-axioms'
+
+// ---- API call args your backend expects (MUTABLE) ---------------------------
 export interface JobArgs {
   api_base?: string
   rows?: number[] | string
@@ -15,6 +20,21 @@ export interface JobArgs {
   station?: string
   matrix?: string
 }
+
+// ---- Preset args (READONLY at authoring time) -------------------------------
+type GridArgsRO = {
+  rows: ReadonlyArray<number>
+  cols: ReadonlyArray<number>
+  dry_run?: boolean
+  ufo_propose?: boolean
+}
+
+type PushAxiomsArgs = { spec: string }
+
+// ---- The discriminated union by `command` -----------------------------------
+export type Preset =
+  | { command: GenerateCommand; args: GridArgsRO }
+  | { command: 'push-axioms';   args: PushAxiomsArgs }
 
 export interface JobResponse {
   jobId: string
@@ -245,7 +265,7 @@ export function createLogStream(jobId: string): EventSource {
   return getOrchestratorClient().createLogStream(jobId)
 }
 
-// Preset configurations for common jobs
+// ---- JOB_PRESETS typed & checked (keeps your literal values) ----------------
 export const JOB_PRESETS = {
   'Test Single Cell': {
     command: 'generate-c',
@@ -275,6 +295,26 @@ export const JOB_PRESETS = {
     command: 'verify-stages',
     args: { rows: [0, 1, 2], cols: [0, 1, 2, 3] }
   }
-} as const
+} as const satisfies Record<string, Preset>;
+
+// ---- Adapter to convert Preset → JobArgs ------------------------------------
+export function toMutableArgs(preset: Preset): JobArgs {
+  switch (preset.command) {
+    case 'push-axioms':
+      return { spec: preset.args.spec };
+
+    // All grid-like generators use rows/cols
+    case 'generate-c':
+    case 'generate-f':
+    case 'generate-d':
+    case 'verify-stages':
+      return {
+        rows: [...preset.args.rows],
+        cols: [...preset.args.cols],
+        ...(preset.args.dry_run ? { dry_run: true } : {}),
+        ...(preset.args.ufo_propose ? { ufo_propose: true } : {})
+      };
+  }
+}
 
 export type JobPresetName = keyof typeof JOB_PRESETS

@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react'
 import { Button } from '@/components/ui'
+import type { MatrixKey } from '@/lib/graphql/types'
 
 interface DocumentControlsProps {
-  selectedMatrix: string
-  onMatrixChange: (matrix: string) => void
+  selectedMatrix: MatrixKey
+  onMatrixChange: (matrix: MatrixKey) => void
   viewMode: 'table' | 'markdown' | 'json'
   onViewModeChange: (mode: 'table' | 'markdown' | 'json') => void
   filterCriteria: {
@@ -26,7 +27,7 @@ const MATRICES = [
   { key: 'W', title: 'Iteration Deltas', icon: '🔄' },
   { key: 'U', title: 'Cycle Synthesis', icon: '🔗' },
   { key: 'N', title: 'Learning Traces', icon: '📚' }
-]
+] as const satisfies Array<{ key: MatrixKey; title: string; icon: string }>
 
 export function DocumentControls({
   selectedMatrix,

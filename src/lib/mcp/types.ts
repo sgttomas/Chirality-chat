@@ -32,10 +32,13 @@ export interface MCPTool {
 }
 
 export interface MCPProperty {
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object'
+  type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object'
   description?: string
-  enum?: string[]
+  required?: boolean
   items?: MCPProperty
+  minimum?: number
+  maximum?: number
+  enum?: string[]
   properties?: Record<string, MCPProperty>
 }
 
