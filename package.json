@@ -29,7 +29,6 @@
     "**/*.css"
   ],
   "scripts": {
-    "predev": "npm run lint && npm run type-check",
     "dev": "TURBOPACK=1 next dev",
     "dev:webpack": "TURBOPACK=0 next dev",
     "build": "next build",

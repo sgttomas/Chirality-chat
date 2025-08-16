@@ -1,6 +1,8 @@
-# Chirality Chat
+# Chirality AI App - Document Generation Interface
 
 A modern, graph-free chat interface for the Chirality Framework, providing conversational AI access to semantic document generation and knowledge management through real-time streaming responses.
+
+> **⚡ Complete Development Environment**: For full multi-service setup including backend services and desktop app, see **[Chirality AI - Complete Developer Setup Guide](https://github.com/[org]/chirality-ai#-complete-developer-setup-guide)**.
 
 ## 🚀 What's New
 
@@ -15,8 +17,27 @@ This application has been recently updated with:
 ## 🏗️ Architecture
 
 ### Split-Apps Architecture
-- **This Repository**: Chat UI, streaming responses, graph-free Chirality Core
-- **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: Optional GraphQL service for advanced operations
+- **This Repository**: Document generation UI with graph-free Chirality Core
+- **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: Backend semantic engine & GraphQL service
+- **[Chirality-AI](https://github.com/[org]/chirality-ai)**: Production orchestration & desktop packaging
+
+## 🏃‍♂️ Standalone Development (This Repository Only)
+
+```bash
+npm install
+npm run dev  # Starts on http://localhost:3000
+```
+
+**Key URLs:**
+- **Main Interface**: http://localhost:3000
+- **Chirality Core**: http://localhost:3000/chirality-core ⭐ (document generation)
+- **Admin Dashboard**: http://localhost:3000/chat-admin
+- **Health Check**: http://localhost:3000/api/healthz
+
+**Requirements:**
+- Node.js 20.x
+- OpenAI API key in `.env.local`
+- Optional: GraphQL service on port 8080 (for advanced features)
 
 ### Core Technologies
 - **Frontend**: Next.js 15.2.3, React 18, TypeScript
