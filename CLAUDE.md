@@ -18,7 +18,7 @@ Chirality Chat is a modern, **graph-free** chat interface for the Chirality Fram
 
 ## Architecture
 
-### Split-Apps Structure
+### Split-Apps Architecture
 - **This Repository**: Chat UI, streaming responses, **graph-free Chirality Core**
 - **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: **Optional** GraphQL service (no longer required)
 
@@ -336,6 +336,30 @@ npm start      # Production server
 - **Backwards compatibility**: Graceful degradation
 - **Optional dependency**: App works without it
 
+## Chirality Boundary Implementation
+
+### Constructive Operations (No LLM)
+The Chirality Framework maintains strict boundaries between operations that require human cognition versus LLM assistance:
+
+**Human-Only (Constructive):**
+- Framework structure design (12-station semantic valley)
+- Semantic operation definitions (`*`, `+`, `×`, `⊙`)
+- Matrix architecture (A, B, C, D, E, F, G, H, J, K, L, M, N, P, Q, R, S, U, W, X, Z)
+- Document type specifications (DS, SP, X, M)
+- System architecture decisions
+- API contracts and interfaces
+
+**LLM-Assisted (Generative):**
+- Semantic interpolation of word pairings into coherent concepts
+- Content generation within predefined document structures
+- Natural language processing for chat interactions
+- Problem statement analysis and context extraction
+
+### Role Clarity
+- **Framework**: Meta-ontological methodology designed by humans
+- **LLM**: Semantic interpolation engine that resolves abstract terms within framework constraints
+- **Boundary Enforcement**: Never allow LLM to modify framework structure, only populate semantic content
+
 ## Best Practices
 
 ### Do's ✅
@@ -345,6 +369,7 @@ npm start      # Production server
 - Use admin dashboard for debugging and transparency
 - Handle malformed JSON responses gracefully
 - Follow file-based state management patterns
+- **Maintain Chirality Boundary**: LLM provides semantic interpolation, not architectural decisions
 
 ### Don'ts ❌
 - Don't use Chat Completions API (deprecated in this app)
@@ -353,6 +378,7 @@ npm start      # Production server
 - Don't expose API keys in client code
 - Don't assume GraphQL/Neo4j availability
 - Don't ignore SSE error states
+- **Don't allow LLM to modify framework structure** - only semantic content within predefined templates
 
 ## Migration Notes
 

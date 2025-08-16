@@ -1,6 +1,6 @@
-# Chirality Chat
+# Chirality Framework: Interactive Chat Interface
 
-A modern, graph-free chat interface for the Chirality Framework, providing conversational AI access to semantic document generation and knowledge management through real-time streaming responses.
+A modern, graph-free chat interface for the **Chirality Framework** - a meta-ontological methodology for generating reliable knowledge about generating reliable knowledge through systematic 12-station semantic valley progression. This implementation provides conversational AI access to semantic document generation where the LLM serves as a **semantic interpolation engine** within the framework's constructive architecture.
 
 ## 🚀 What's New
 
@@ -14,7 +14,7 @@ This application has been recently updated with:
 
 ## 🏗️ Architecture
 
-### Split-Apps Structure
+### Split-Apps Architecture
 - **This Repository**: Chat UI, streaming responses, graph-free Chirality Core
 - **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: Optional GraphQL service for advanced operations
 
