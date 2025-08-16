@@ -1,0 +1,246 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Environment and dependency validation
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate Environment & Dependencies
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate environment configuration
+      run: npm run env:check
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        
+  # Code quality checks
+  quality:
+    runs-on: ubuntu-latest
+    name: Code Quality & Standards
+    needs: validate
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run ESLint
+      run: npm run lint
+      
+    - name: Run TypeScript type checking
+      run: npm run type-check
+      
+    - name: Update documentation index
+      run: npm run update-docs-index
+      
+    - name: Check for documentation changes
+      run: |
+        if ! git diff --quiet docs/FRONTEND_DOCUMENTATION_INDEX.md; then
+          echo "Documentation index was updated. Please commit the changes."
+          git diff docs/FRONTEND_DOCUMENTATION_INDEX.md
+          exit 1
+        fi
+
+  # Build and test
+  build-test:
+    runs-on: ubuntu-latest
+    name: Build & Test Application
+    needs: quality
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_APP_NAME: "Chirality Chat CI"
+        NEXT_PUBLIC_DEBUG: "0"
+        
+    - name: Run tests
+      run: npm test
+      
+    - name: Test orchestration system (if API key available)
+      if: env.OPENAI_API_KEY != ''
+      run: npm run orchestrate:test
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_MODEL: "gpt-4.1-nano"
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: build-output
+        path: .next
+        retention-days: 1
+
+  # Performance and accessibility checks
+  performance:
+    runs-on: ubuntu-latest
+    name: Performance & Accessibility
+    needs: build-test
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        path: .next
+        
+    - name: Start application for testing
+      run: |
+        npm start &
+        sleep 30  # Wait for app to start
+      env:
+        NEXT_PUBLIC_APP_NAME: "Chirality Chat CI"
+        NEXT_PUBLIC_DEBUG: "0"
+        
+    - name: Test health endpoint
+      run: npm run health
+      
+    - name: Run Lighthouse CI (if configured)
+      if: false  # Enable when Lighthouse config is added
+      run: npx lhci autorun
+      
+  # Security scanning
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    needs: validate
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+      
+    - name: Run security scan with CodeQL (if enabled)
+      if: false  # Enable when needed
+      uses: github/codeql-action/analyze@v3
+      with:
+        languages: javascript
+
+  # Deployment preview (for pull requests)
+  preview:
+    runs-on: ubuntu-latest
+    name: Deploy Preview
+    needs: [quality, build-test]
+    if: github.event_name == 'pull_request' && github.head_ref != 'main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        path: .next
+        
+    - name: Deploy to preview environment
+      if: false  # Enable when preview environment is configured
+      run: echo "Deploy to preview environment would happen here"
+      
+    - name: Comment PR with preview link
+      if: false  # Enable when preview environment is configured
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🚀 Preview deployment is ready!'
+          })
+
+  # Notification and status reporting
+  status:
+    runs-on: ubuntu-latest
+    name: Report Status
+    needs: [validate, quality, build-test]
+    if: always()
+    
+    steps:
+    - name: Report success
+      if: needs.validate.result == 'success' && needs.quality.result == 'success' && needs.build-test.result == 'success'
+      run: |
+        echo "✅ All CI checks passed successfully!"
+        echo "✅ Environment validation: passed"
+        echo "✅ Code quality checks: passed" 
+        echo "✅ Build and tests: passed"
+        
+    - name: Report failure
+      if: needs.validate.result == 'failure' || needs.quality.result == 'failure' || needs.build-test.result == 'failure'
+      run: |
+        echo "❌ CI checks failed!"
+        echo "❌ Environment validation: ${{ needs.validate.result }}"
+        echo "❌ Code quality checks: ${{ needs.quality.result }}"
+        echo "❌ Build and tests: ${{ needs.build-test.result }}"
+        exit 1

@@ -2,6 +2,8 @@
 
 Welcome to the Chirality Chat project! This guide will get you from zero to productive contributor in minutes.
 
+**Architecture Note**: This is a standalone chat application with its own graph-free Chirality Core, part of the split-apps architecture. It can run independently or connect to shared backend services.
+
 ## 🚀 Quick Start (5 minutes)
 
 ### 1. Prerequisites Check

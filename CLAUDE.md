@@ -18,7 +18,7 @@ Chirality Chat is a modern, **graph-free** chat interface for the Chirality Fram
 
 ## Architecture
 
-### Polyrepo Structure
+### Split-Apps Structure
 - **This Repository**: Chat UI, streaming responses, **graph-free Chirality Core**
 - **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: **Optional** GraphQL service (no longer required)
 

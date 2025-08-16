@@ -29,6 +29,7 @@
     "**/*.css"
   ],
   "scripts": {
+    "predev": "npm run lint && npm run type-check",
     "dev": "TURBOPACK=1 next dev",
     "dev:webpack": "TURBOPACK=0 next dev",
     "build": "next build",
@@ -37,6 +38,10 @@
     "type-check": "tsc --noEmit",
     "test": "echo \"Tests not yet implemented\" && exit 0",
     "test:e2e": "echo \"E2E tests not yet implemented\" && exit 0",
+    "orchestrate:test": "ts-node scripts/test-orchestration.ts",
+    "update-docs-index": "node scripts/update-docs-index.js",
+    "env:check": "node -r dotenv/config scripts/validate-env.js",
+    "prepare": "husky",
     "smoke:rest": "node scripts/smoke-rest.mjs",
     "health": "curl -f http://localhost:3000/api/healthz || echo 'Server not running'",
     "debug": "curl -s http://localhost:3000/api/chat/debug | jq",
@@ -53,21 +58,28 @@
     "@tanstack/react-query": "^5.51.1",
     "@tanstack/react-query-devtools": "^5.85.3",
     "critters": "^0.0.23",
-    "neo4j-driver": "^5.22.0",
     "next": "15.2.3",
     "openai": "^5.12.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.0",
     "ws": "^8.16.0",
+    "zod": "^3.25.76",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@types/node": "24.2.1",
     "@types/react": "19.1.10",
     "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.33.0",
+    "eslint-config-next": "^15.4.6",
+    "husky": "^9.0.11",
     "postcss": "^8.4.40",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
     "typescript": "^5.4.5"
   },
   "engines": {

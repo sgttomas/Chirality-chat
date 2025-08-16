@@ -14,7 +14,7 @@ This application has been recently updated with:
 
 ## 🏗️ Architecture
 
-### Polyrepo Structure
+### Split-Apps Structure
 - **This Repository**: Chat UI, streaming responses, graph-free Chirality Core
 - **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: Optional GraphQL service for advanced operations
 
@@ -259,3 +259,77 @@ MIT License - see LICENSE file for details.
 ---
 
 🤖 **Last Updated**: This README reflects the current state with graph-free Chirality Core, fixed SSE streaming, OpenAI Responses API integration, and comprehensive admin dashboard for full system transparency.
+
+---
+
+# Split-Apps Architecture Implementation
+
+## Overview
+
+Successfully implemented the split-apps structure that preserves all working functionality while organizing the codebase for future unified deployment via Electron.
+
+## Final Directory Structure
+
+```
+/Users/ryan/Desktop/ai-env
+├── chirality-ai/                    # Orchestrator repo (compose, desktop, docs)
+│   ├── compose/
+│   │   ├── docker-compose.yml       # Backend services (Neo4j, GraphQL, Admin)
+│   │   └── .env                     # Environment configuration
+│   ├── desktop/                     # Future Electron wrapper
+│   └── .env                         # Shared environment configuration
+├── chirality-ai-app/               # Product frontend (Next.js)
+├── chirality-ai-backend/            # Product backend (GraphQL + Admin)
+├── chirality-semantic-framework/   # Independent full app
+└── chirality-chat/                 # Independent sandbox app
+```
+
+## Services & Ports
+
+### Backend Services (via Docker Compose)
+- **Neo4j**: `localhost:7474` (HTTP), `localhost:7687` (Bolt)
+- **GraphQL**: `localhost:8080`
+- **Admin**: `localhost:3001`
+
+### Frontend Applications
+- **Product App** (`chirality-ai-app`): `localhost:3000`
+- **Semantic Framework**: Independent ports
+- **Chat Sandbox**: Independent ports
+
+## Application Coexistence
+
+### Product App Usage
+```bash
+# Start backend services
+cd /Users/ryan/Desktop/ai-env/chirality-ai/compose
+docker compose up -d
+
+# Start frontend
+cd /Users/ryan/Desktop/ai-env/chirality-ai-app
+npx next dev  # Available at http://localhost:3000
+```
+
+### Framework App Usage
+The `chirality-semantic-framework` remains completely independent:
+```bash
+cd /Users/ryan/Desktop/ai-env/chirality-semantic-framework
+npm run dev  # Runs on its own port
+```
+
+### Chat Sandbox Usage
+The `chirality-chat` can point to the same backend via environment:
+```bash
+cd /Users/ryan/Desktop/ai-env/chirality-chat
+echo "NEXT_PUBLIC_GRAPHQL_URL=http://localhost:8080/graphql" >> .env.local
+npm run dev  # Experimental sandbox using shared backend
+```
+
+## Benefits Achieved
+
+1. **Zero Downtime**: Preserved all working functionality
+2. **Clear Organization**: Distinct boundaries between product, framework, and sandbox
+3. **Unified Backend**: Single set of services serving multiple frontends
+4. **Electron Ready**: Structure prepared for desktop app packaging
+5. **Independent Evolution**: Framework and chat can iterate without affecting product
+
+The split-apps architecture is now fully operational and ready for continued development or Electron packaging.

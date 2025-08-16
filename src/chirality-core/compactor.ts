@@ -40,8 +40,16 @@ export function compactM(m: M): string {
   const parts = [
     `statement=${m.statement}`,
     m.justification ? clamp(`justification=${m.justification}`, 400) : '',
-    m.assumptions ? (Array.isArray(m.assumptions) ? `assumptions=${m.assumptions.join(',')}` : `assumptions=${m.assumptions}`) : '',
-    m.residual_risk ? (Array.isArray(m.residual_risk) ? `residual=${m.residual_risk.join(',')}` : `residual=${m.residual_risk}`) : '',
+    m.assumptions
+      ? Array.isArray(m.assumptions)
+        ? `assumptions=${m.assumptions.join(',')}`
+        : `assumptions=${m.assumptions}`
+      : '',
+    m.residual_risk
+      ? Array.isArray(m.residual_risk)
+        ? `residual_risk=${m.residual_risk.join(',')}`
+        : `residual_risk=${m.residual_risk}`
+      : '',
   ].filter(Boolean);
   return clamp(parts.join(' | '), 700);
 }
