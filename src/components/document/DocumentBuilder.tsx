@@ -9,22 +9,21 @@ import { parseCellValue, type DS, type SP, type X, type Z, type M, type LlmTripl
 import { formatDSTableMarkdown, formatBundleMarkdown } from '@/lib/prompt/formatters.table'
 import { dsTriplesToCsv, downloadCsv } from '@/lib/export/dsCsv'
 import { smartSerialize } from '@/lib/serializers'
-import type { DocumentSynthesisMatrix } from '@/lib/graphql/types'
+import type { MatrixKey } from '@/lib/graphql/types'
 
 interface DocumentBuilderProps {
   className?: string
 }
 
-interface DocumentData {
-  DS?: any[]  // Data Sheet
-  SP?: any[]  // Standard Procedure  
-  X?: any[]   // Guidance Document
-  Z?: any[]   // Checklist
-  M?: any[]   // Solution Statements
-  W?: any[]   // Iteration Deltas
-  U?: any[]   // Cycle Synthesis
-  N?: any[]   // Learning Traces
+// Separate UI matrix shape for document builder
+type MatrixCell = {
+  value: string
+  row: number
+  col: number
+  confidence: number
+  status?: string
 }
+type UiMatrix = Record<MatrixKey, MatrixCell[]>
 
 const MATRIX_TITLES = {
   DS: 'Data Sheet',
@@ -38,7 +37,7 @@ const MATRIX_TITLES = {
 }
 
 export function DocumentBuilder({ className }: DocumentBuilderProps) {
-  const [selectedMatrix, setSelectedMatrix] = useState<keyof DocumentData>('DS')
+  const [selectedMatrix, setSelectedMatrix] = useState<MatrixKey>('DS')
   const [viewMode, setViewMode] = useState<'table' | 'markdown' | 'json'>('table')
   const [filterCriteria, setFilterCriteria] = useState<{
     minConfidence?: number
@@ -56,14 +55,14 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
         if (coreResponse.ok) {
           const coreData = await coreResponse.json()
           
-          // Transform Chirality Core data to DocumentData format
+          // Transform Chirality Core data to UI matrix format
           // IMPORTANT: Serialize Triple objects to strings for parseCellValue
-          const transformed: DocumentData = {}
+          const doc: UiMatrix = { DS: [], SP: [], X: [], Z: [], M: [], W: [], U: [], N: [] }
           
           if (coreData.finals?.DS) {
             // Use smart serialization to handle Triple format properly
             const serialized = smartSerialize(coreData.finals.DS)
-            transformed.DS = [{
+            doc.DS = [{
               value: serialized,
               row: 0,
               col: 0,
@@ -74,7 +73,7 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
           if (coreData.finals?.SP) {
             // Use smart serialization to handle Triple format properly
             const serialized = smartSerialize(coreData.finals.SP)
-            transformed.SP = [{
+            doc.SP = [{
               value: serialized,
               row: 0,
               col: 0,
@@ -85,7 +84,7 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
           if (coreData.finals?.X) {
             // Use smart serialization to handle Triple format properly
             const serialized = smartSerialize(coreData.finals.X)
-            transformed.X = [{
+            doc.X = [{
               value: serialized,
               row: 0,
               col: 0,
@@ -96,7 +95,7 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
           if (coreData.finals?.M) {
             // Use smart serialization to handle Triple format properly
             const serialized = smartSerialize(coreData.finals.M)
-            transformed.M = [{
+            doc.M = [{
               value: serialized,
               row: 0,
               col: 0,
@@ -105,8 +104,8 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
           }
           
           // If we have Core data, return it
-          if (Object.keys(transformed).length > 0) {
-            return transformed
+          if (Object.keys(doc).length > 0) {
+            return doc
           }
         }
       } catch (e) {
@@ -130,12 +129,12 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
       }
       
       // Transform the data into the expected format
-      const transformed: DocumentData = {}
+      const doc: UiMatrix = { DS: [], SP: [], X: [], Z: [], M: [], W: [], U: [], N: [] }
       result.matrices.forEach((matrix: any) => {
-        transformed[matrix.name as keyof DocumentData] = matrix.cells
+        doc[matrix.name as MatrixKey] = matrix.cells
       })
       
-      return transformed
+      return doc
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   })
@@ -145,7 +144,7 @@ export function DocumentBuilder({ className }: DocumentBuilderProps) {
     if (filterCriteria.minConfidence && cell.confidence < filterCriteria.minConfidence) {
       return false
     }
-    if (filterCriteria.status?.length && !filterCriteria.status.includes(cell.status)) {
+    if (filterCriteria.status?.length && (!cell.status || !filterCriteria.status.includes(cell.status))) {
       return false
     }
     return true

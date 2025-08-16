@@ -2,11 +2,9 @@
 
 A comprehensive user guide for interacting with the Chirality Chat interface - your gateway to AI-powered semantic document generation and retrieval-augmented generation (RAG) conversations.
 
-**Architecture Note**: This is part of the split-apps architecture. This repository runs independently with its own graph-free Chirality Core, and can optionally connect to shared backend services for enhanced functionality.
-
 ## 🚀 Quick Start
 
-1. **Navigate to Chat**: http://localhost:3000 (default Next.js port)
+1. **Navigate to Chat**: http://localhost:3001
 2. **Try a question**: Ask about any topic or use existing documents
 3. **Generate documents**: Use natural language commands
 4. **Monitor system**: Visit admin dashboard for transparency
@@ -296,56 +294,5 @@ Once comfortable with basic interactions:
 ---
 
 🤖 **Remember**: Chirality Chat combines structured document generation with conversational AI to provide context-aware, domain-specific responses. The more structured documents you generate, the more intelligent and relevant your chat conversations become!
-
-## Split-Apps Architecture Context
-
-This application is part of a split-apps ecosystem:
-
-### Directory Structure
-```
-/Users/ryan/Desktop/ai-env
-├── chirality-ai/                    # Orchestrator repo (compose, desktop, docs)
-│   ├── compose/                     # Docker Compose services (Neo4j, GraphQL, Admin)
-│   └── desktop/                     # Future Electron wrapper
-├── chirality-ai-app/               # Product frontend (Next.js)
-├── chirality-ai-backend/            # Product backend (GraphQL + Admin)
-├── chirality-semantic-framework/   # Independent full app
-└── chirality-chat/                 # Independent sandbox app (this repo)
-```
-
-### Operating Modes
-
-**Standalone Mode** (Default):
-- Run this app independently on localhost:3000
-- Uses internal graph-free Chirality Core
-- File-based state management
-- No external dependencies required
-
-**Shared Backend Mode** (Optional):
-- Connect to shared backend services via environment configuration
-- Access shared Neo4j database and GraphQL services
-- Enhanced matrix visualization capabilities
-- Set `NEXT_PUBLIC_GRAPHQL_URL=http://localhost:8080/graphql` in `.env.local`
-
-### Quick Setup Commands
-
-**Standalone Mode:**
-```bash
-cd /Users/ryan/Desktop/ai-env/chirality-chat
-npm install
-npm run dev  # Runs on http://localhost:3000
-```
-
-**With Shared Backend:**
-```bash
-# Terminal 1: Start shared services
-cd /Users/ryan/Desktop/ai-env/chirality-ai/compose
-docker compose up -d
-
-# Terminal 2: Start chat app with backend connection
-cd /Users/ryan/Desktop/ai-env/chirality-chat
-echo "NEXT_PUBLIC_GRAPHQL_URL=http://localhost:8080/graphql" >> .env.local
-npm run dev
-```
 
 For technical details, see **README.md**. For troubleshooting, see **HELP.md**. For development, see **ONBOARDING.md** and **CLAUDE.md**.

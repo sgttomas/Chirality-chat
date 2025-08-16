@@ -10,12 +10,12 @@ const clean = (s?: string) => (s ? s.trim() : '');
 export function formatDSTableMarkdown(triple: LlmTriple<DS>): string {
   const t = triple.text;
   const rows: [string, string][] = [
-    ['Data Field', clean(t.data_field)],
-    ['Units', clean(t.units)],
-    ['Type', clean(t.type)],
-    ['Sources', joinArr(t.source_refs)],
-    ['Notes', joinArr(t.notes, ' • ')],
-  ].filter(([, v]) => v && v.length);
+    ['Data Field', String(clean(t.data_field))] as [string, string],
+    ['Units', String(clean(t.units))] as [string, string],
+    ['Type', String(clean(t.type))] as [string, string],
+    ['Sources', String(joinArr(t.source_refs))] as [string, string],
+    ['Notes', String(joinArr(t.notes, ' • '))] as [string, string],
+  ].filter(([, v]) => !!v && v.length > 0);
 
   // two-column table
   const header = `| Field | Value |\n|---|---|`;
@@ -38,12 +38,12 @@ export function formatDSTableMarkdown(triple: LlmTriple<DS>): string {
 export function formatDSTableHTML(triple: LlmTriple<DS>): string {
   const t = triple.text;
   const rows: [string, string][] = [
-    ['Data Field', clean(t.data_field)],
-    ['Units', clean(t.units)],
-    ['Type', clean(t.type)],
-    ['Sources', joinArr(t.source_refs)],
-    ['Notes', joinArr(t.notes, ' • ')],
-  ].filter(([, v]) => v && v.length);
+    ['Data Field', String(clean(t.data_field))] as [string, string],
+    ['Units', String(clean(t.units))] as [string, string],
+    ['Type', String(clean(t.type))] as [string, string],
+    ['Sources', String(joinArr(t.source_refs))] as [string, string],
+    ['Notes', String(joinArr(t.notes, ' • '))] as [string, string],
+  ].filter(([, v]) => !!v && v.length > 0);
 
   const cells = rows
     .map(([k, v]) => `<tr><th style="text-align:left;white-space:nowrap;">${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`)

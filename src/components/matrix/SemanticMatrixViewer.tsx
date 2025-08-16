@@ -307,12 +307,12 @@ export function SemanticMatrixViewer({
           </div>
           
           <div className="flex items-center space-x-2">
-            <Badge variant="outline">
+            <Badge variant="default">
               {matrixData.cells.length} cells
             </Badge>
             <Button 
               size="sm" 
-              variant="outline"
+              variant="default"
               onClick={() => refetch()}
             >
               Refresh

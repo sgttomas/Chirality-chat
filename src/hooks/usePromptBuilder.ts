@@ -84,23 +84,23 @@ export function usePromptBuilder(options: UsePromptBuilderOptions = {}): PromptB
 
     switch (kind) {
       case 'DS':
-        payloadValid = guard.DS(payload)
+        payloadValid = guard.DS(payload as unknown as any)
         if (!payloadValid) errors.push('Invalid DS payload: missing required data_field')
         break
       case 'SP':
-        payloadValid = guard.SP(payload)
+        payloadValid = guard.SP(payload as unknown as any)
         if (!payloadValid) errors.push('Invalid SP payload: missing required step')
         break
       case 'X':
-        payloadValid = guard.X(payload)
+        payloadValid = guard.X(payload as unknown as any)
         if (!payloadValid) errors.push('Invalid X payload: missing required heading or narrative')
         break
       case 'Z':
-        payloadValid = guard.Z(payload)
+        payloadValid = guard.Z(payload as unknown as any)
         if (!payloadValid) errors.push('Invalid Z payload: missing required item')
         break
       case 'M':
-        payloadValid = guard.M(payload)
+        payloadValid = guard.M(payload as unknown as any)
         if (!payloadValid) errors.push('Invalid M payload: missing required statement')
         break
     }

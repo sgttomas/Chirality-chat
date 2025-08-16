@@ -286,7 +286,7 @@ export class MatrixExporter {
         metadata: {
           nodeCount: matrix.nodes.length,
           edgeCount: matrix.edges?.length || 0,
-          matrixType: matrix.metadata?.type,
+          matrixType: (matrix.metadata && 'type' in matrix.metadata) ? (matrix.metadata as any).type : undefined,
           molecularFormula: matrix.metadata?.molecularFormula
         }
       }),

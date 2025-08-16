@@ -1,5 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname "$0")/_/husky.sh"
 
 # Frontend Pre-commit Hook
 # Runs linting, type checking, and documentation updates before commits

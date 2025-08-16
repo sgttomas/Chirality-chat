@@ -220,7 +220,7 @@ export function ToolInvocation({ tool, onResult, onError }: ToolInvocationProps)
                         {name}
                         {isRequired && <span className="text-red-500">*</span>}
                       </span>
-                      <Badge variant="outline" size="sm">
+                      <Badge variant="default" size="sm">
                         {property.type}
                       </Badge>
                     </div>

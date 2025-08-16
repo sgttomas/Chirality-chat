@@ -13,11 +13,9 @@
 
 ### Prerequisites
 - Node.js 18+ and npm
-- OpenAI API key with access to gpt-4.1-nano model
-- (Optional) Access to Neo4j database for enhanced features
-- (Optional) [Chirality-Framework](https://github.com/sgttomas/Chirality-Framework) GraphQL service for advanced operations
-
-**Note**: This application now runs standalone with graph-free Chirality Core. Neo4j and GraphQL services are optional enhancements.
+- Access to Neo4j database (Aura or local)
+- OpenAI API key
+- [Chirality-Framework](https://github.com/sgttomas/Chirality-Framework) GraphQL service running
 
 ### Installation
 
@@ -31,21 +29,17 @@ npm install
 2. **Configure environment:**
 Create `.env.local` file:
 ```env
-# Required: OpenAI Configuration
-OPENAI_API_KEY=sk-proj-your-openai-api-key
-OPENAI_MODEL=gpt-4.1-nano
-DEFAULT_TEMPERATURE=0.6
-MAX_OUTPUT_TOKENS=800
+# OpenAI Configuration
+OPENAI_API_KEY=your-openai-api-key
 
-# Optional: Neo4j Configuration (for legacy features)
+# Neo4j Configuration
 NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=your-password
 NEO4J_DATABASE=neo4j
 
-# Optional: Shared backend integration
-NEXT_PUBLIC_GRAPHQL_URL=http://localhost:8080/graphql
-NEXT_PUBLIC_ORCHESTRATOR_URL=http://localhost:3001
+# Optional: GraphQL endpoint (defaults to localhost:8080)
+GRAPHQL_ENDPOINT=http://localhost:8080/graphql
 ```
 
 3. **Start the application:**

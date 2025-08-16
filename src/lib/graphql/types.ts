@@ -126,6 +126,9 @@ export interface DocumentSynthesisMatrix {
   N?: LearningData  // Learning Traces
 }
 
+// Type alias for matrix keys
+export type MatrixKey = keyof DocumentSynthesisMatrix
+
 export interface DocumentData {
   dataField: string
   units: string

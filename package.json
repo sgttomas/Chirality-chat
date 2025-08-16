@@ -54,10 +54,12 @@
     "setup": "npm install && echo 'Add OPENAI_API_KEY to .env.local and run: npm run dev'"
   },
   "dependencies": {
+    "@apollo/client": "^3.13.9",
     "@modelcontextprotocol/sdk": "^1.0.0",
     "@tanstack/react-query": "^5.51.1",
     "@tanstack/react-query-devtools": "^5.85.3",
     "critters": "^0.0.23",
+    "graphql": "^16.11.0",
     "next": "15.2.3",
     "openai": "^5.12.2",
     "react": "^18.3.1",

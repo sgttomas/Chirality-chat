@@ -2,8 +2,6 @@
 
 This document captures the key architectural decisions made during the development of Chirality Chat, providing context for future contributors and maintainers.
 
-**Context**: This application is part of the split-apps architecture, designed to operate independently while optionally integrating with shared backend services.
-
 ## ADR-001: Graph-Free Architecture Migration
 
 **Date**: 2024-01-15  
@@ -532,67 +530,6 @@ When making new architectural decisions, consider:
 5. **Scalability**: How does this affect scaling capabilities?
 6. **Developer Experience**: Does this improve or hinder development?
 7. **User Experience**: What is the impact on end users?
-
----
-
-## ADR-008: Split-Apps Architecture Integration
-
-**Date**: 2024-08-16  
-**Status**: Implemented  
-**Deciders**: Development Team  
-
-### Context
-The application needed to support both standalone operation and integration with shared backend services as part of a unified ecosystem.
-
-### Decision
-Implement **split-apps architecture** allowing independent operation while supporting optional integration with shared backend services via Docker Compose.
-
-### Consequences
-
-**Positive:**
-- ✅ Independent development and deployment
-- ✅ Standalone operation without external dependencies
-- ✅ Optional enhanced features via shared backend
-- ✅ Clear separation of concerns
-- ✅ Electron-ready architecture
-
-**Negative:**
-- ❌ More complex environment configuration
-- ❌ Multiple operating modes to test
-- ❌ Coordination required across repositories
-
-### Directory Structure
-```
-/Users/ryan/Desktop/ai-env
-├── chirality-ai/                    # Orchestrator repo (compose, desktop, docs)
-│   ├── compose/                     # Docker Compose services (Neo4j, GraphQL, Admin)
-│   └── desktop/                     # Future Electron wrapper
-├── chirality-ai-app/               # Product frontend (Next.js)
-├── chirality-ai-backend/            # Product backend (GraphQL + Admin)
-├── chirality-semantic-framework/   # Independent full app
-└── chirality-chat/                 # Independent sandbox app (this repo)
-```
-
-### Operating Modes
-
-**Standalone Mode** (Default):
-- Graph-free Chirality Core
-- File-based state management
-- No external dependencies
-- Port: localhost:3000
-
-**Shared Backend Mode** (Optional):
-- Connect to unified backend services
-- Enhanced matrix visualization
-- Shared Neo4j database access
-- Environment: `NEXT_PUBLIC_GRAPHQL_URL=http://localhost:8080/graphql`
-
-### Implementation Details
-- Environment-based configuration switching
-- Graceful degradation when backend unavailable
-- Preserved all standalone functionality
-- Optional enhanced features via backend integration
-- Clear documentation for both modes
 
 ---
 

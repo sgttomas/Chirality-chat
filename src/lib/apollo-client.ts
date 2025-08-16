@@ -1,6 +1,6 @@
 'use client'
 
-import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client'
+import { ApolloClient, InMemoryCache, createHttpLink, from, NormalizedCacheObject } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
 
@@ -8,37 +8,24 @@ const httpLink = createHttpLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/graphql',
 })
 
-const authLink = setContext((_, { headers }) => {
-  // Add any auth headers if needed
-  return {
+const authLink = setContext(
+  (_: unknown, { headers }: { headers?: Record<string, string> }) => ({
     headers: {
       ...headers,
-      // Add authorization header if using tokens
-      // authorization: token ? `Bearer ${token}` : "",
-    }
-  }
-})
+      authorization:
+        typeof window !== 'undefined' ? localStorage.getItem('auth') ?? '' : '',
+    },
+  })
+);
 
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path }) =>
-      console.error(
-        `GraphQL error: Message: ${message}, Location: ${locations}, Path: ${path}`
-      )
-    )
+    for (const err of graphQLErrors) console.error('[GraphQL error]:', err)
   }
+  if (networkError) console.error('[Network error]:', networkError)
+});
 
-  if (networkError) {
-    console.error(`Network error: ${networkError}`)
-    
-    // If GraphQL service is down, fallback to REST API
-    if (networkError.message.includes('fetch')) {
-      console.warn('GraphQL service unavailable, falling back to REST API')
-    }
-  }
-})
-
-const apolloClient = new ApolloClient({
+export const apolloClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache({
     typePolicies: {

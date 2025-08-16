@@ -92,9 +92,9 @@ function DataSheetView({ data }: { data: any[] }) {
               <tr key={index} className="hover:bg-gray-50">
                 <td className="border border-gray-200 px-4 py-2 font-medium">
                   {isValid ? ds.data_field : cell.labels?.rowLabel || '—'}
-                  {triple.warnings.length > 0 && (
+                  {(triple?.warnings?.length ?? 0) > 0 && (
                     <div className="text-xs text-yellow-600 mt-1">
-                      {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                      {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                     </div>
                   )}
                 </td>
@@ -107,7 +107,7 @@ function DataSheetView({ data }: { data: any[] }) {
                       {ds.type || 'unknown'}
                     </Badge>
                   ) : (
-                    <Badge variant="outline">Invalid</Badge>
+                    <Badge variant="default">Invalid</Badge>
                   )}
                 </td>
                 <td className="border border-gray-200 px-4 py-2">
@@ -140,12 +140,12 @@ function ProcedureView({ data }: { data: any[] }) {
                 Step {index + 1}: {isValid ? sp.step : (cell.labels?.rowLabel || 'Invalid')}
               </h5>
               <div className="flex items-center space-x-2">
-                <Badge variant="outline">
+                <Badge variant="default">
                   Variable
                 </Badge>
-                {triple?.warnings.length > 0 && (
+                {(triple?.warnings?.length ?? 0) > 0 && (
                   <Badge variant="destructive">
-                    {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                    {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                   </Badge>
                 )}
               </div>
@@ -206,13 +206,14 @@ function ProcedureView({ data }: { data: any[] }) {
 }
 
 function ChecklistView({ data }: { data: any[] }) {
-  const getSeverityColor = (severity: string) => {
+  type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'secondary' | 'destructive'
+  const getSeverityColor = (severity?: string): BadgeVariant => {
     switch (severity?.toLowerCase()) {
       case 'critical': return 'destructive'
-      case 'high': return 'destructive'
-      case 'medium': return 'default'
+      case 'high': return 'destructive' 
+      case 'medium': return 'warning'
       case 'low': return 'secondary'
-      default: return 'outline'
+      default: return 'default'
     }
   }
 
@@ -235,9 +236,9 @@ function ChecklistView({ data }: { data: any[] }) {
                 <h5 className="font-medium text-gray-800">
                   {isValid ? z.item : (cell.labels?.rowLabel || 'Invalid')}
                 </h5>
-                {triple?.warnings.length > 0 && (
+                {(triple?.warnings?.length ?? 0) > 0 && (
                   <Badge variant="destructive" className="text-xs">
-                    {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                    {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                   </Badge>
                 )}
               </div>
@@ -288,9 +289,9 @@ function SolutionView({ data }: { data: any[] }) {
               <h5 className="font-semibold text-gray-800">
                 Solution {index + 1}: {isValid ? m.statement : (cell.labels?.rowLabel || 'Invalid')}
               </h5>
-              {triple?.warnings.length > 0 && (
+              {(triple?.warnings?.length ?? 0) > 0 && (
                 <Badge variant="destructive">
-                  {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                  {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                 </Badge>
               )}
             </div>
@@ -355,9 +356,9 @@ function GuidanceView({ data }: { data: any[] }) {
               <h5 className="text-lg font-semibold text-gray-800">
                 {isValid ? x.heading : (cell.labels?.rowLabel || 'Invalid')}
               </h5>
-              {triple?.warnings.length > 0 && (
+              {(triple?.warnings?.length ?? 0) > 0 && (
                 <Badge variant="destructive">
-                  {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                  {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                 </Badge>
               )}
             </div>
@@ -425,14 +426,14 @@ function DeltaView({ data }: { data: any[] }) {
               <tr key={index} className="hover:bg-gray-50">
                 <td className="border border-gray-200 px-4 py-2 font-medium">
                   {isValid ? w.artifact : (cell.labels?.rowLabel || 'Invalid')}
-                  {triple?.warnings.length > 0 && (
+                  {(triple?.warnings?.length ?? 0) > 0 && (
                     <div className="text-xs text-yellow-600 mt-1">
-                      {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                      {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                     </div>
                   )}
                 </td>
                 <td className="border border-gray-200 px-4 py-2">
-                  <Badge variant="outline">
+                  <Badge variant="default">
                     {isValid ? `${w.from_version} → ${w.to_version}` : 'Invalid'}
                   </Badge>
                 </td>
@@ -471,9 +472,9 @@ function SynthesisView({ data }: { data: any[] }) {
                 Round {isValid ? u.round : (index + 1)} Synthesis
               </h5>
               <div className="flex items-center space-x-2">
-                {triple?.warnings.length > 0 && (
+                {(triple?.warnings?.length ?? 0) > 0 && (
                   <Badge variant="destructive">
-                    {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                    {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                   </Badge>
                 )}
                 {isValid ? (
@@ -481,7 +482,7 @@ function SynthesisView({ data }: { data: any[] }) {
                     <Badge variant={u.convergence >= 0.8 ? 'default' : 'destructive'}>
                       Convergence: {(u.convergence * 100).toFixed(1)}%
                     </Badge>
-                    <Badge variant="outline">
+                    <Badge variant="default">
                       Confidence: {(u.confidence * 100).toFixed(1)}%
                     </Badge>
                   </>
@@ -537,9 +538,9 @@ function LearningView({ data }: { data: any[] }) {
               <h5 className="font-semibold text-gray-800">
                 Learning Trace {index + 1}
               </h5>
-              {triple?.warnings.length > 0 && (
+              {(triple?.warnings?.length ?? 0) > 0 && (
                 <Badge variant="destructive">
-                  {triple.warnings.length} warning{triple.warnings.length > 1 ? 's' : ''}
+                  {triple?.warnings?.length ?? 0} warning{(triple?.warnings?.length ?? 0) > 1 ? 's' : ''}
                 </Badge>
               )}
             </div>

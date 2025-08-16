@@ -1,6 +1,6 @@
 // Glue code: building prompts from GraphQL pullCell results
 
-import { composeCellPrompt, DocKind, CellContext, UpstreamContext, BuiltPrompt } from './llmContracts'
+import { DocKind, CellContext, UpstreamContext, BuiltPrompt } from './llmContracts'
 
 export function buildFromPullCell(
   kind: DocKind,
@@ -17,7 +17,8 @@ export function buildFromPullCell(
     anchors: pull.cell?.anchors,
     ontologies: pull.ontologies,
   }
-  return composeCellPrompt(kind, ctx, upstream)
+  // TODO: composeCellPrompt function not available - implement or import from correct location
+  throw new Error('composeCellPrompt not implemented')
 }
 
-export { composeCellPrompt, type DocKind, type CellContext, type UpstreamContext, type BuiltPrompt } from './llmContracts'
+export { type DocKind, type CellContext, type UpstreamContext, type BuiltPrompt } from './llmContracts'

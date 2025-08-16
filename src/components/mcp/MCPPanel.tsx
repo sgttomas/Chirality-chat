@@ -48,9 +48,7 @@ export function MCPPanel({ onToolResult, className }: MCPPanelProps) {
     // Add virtual Chirality server with built-in tools
     const chiralityServer: MCPConnectionConfig = {
       serverId: 'chirality-local',
-      name: 'Chirality Framework',
-      description: 'Built-in tools for the Chirality Framework pipeline',
-      transport: 'builtin'
+      name: 'Chirality Framework'
     }
     
     // Add the server with tools
@@ -143,10 +141,10 @@ export function MCPPanel({ onToolResult, className }: MCPPanelProps) {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Model Context Protocol</h2>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" size="sm">
+              <Badge variant="default" size="sm">
                 {connectedServers.length} connected
               </Badge>
-              <Badge variant="outline" size="sm">
+              <Badge variant="default" size="sm">
                 {availableTools.length} tools
               </Badge>
             </div>
@@ -212,7 +210,7 @@ export function MCPPanel({ onToolResult, className }: MCPPanelProps) {
             </CardHeader>
             <CardContent className="flex gap-2">
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={handleAddSampleServer}
                 disabled={isLoading}
@@ -221,7 +219,7 @@ export function MCPPanel({ onToolResult, className }: MCPPanelProps) {
               </Button>
               
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={() => {
                   const discovery = getMCPDiscoveryService()
