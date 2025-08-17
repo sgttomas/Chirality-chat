@@ -1,0 +1,76 @@
+name: Create GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Tag to create/release (e.g., v1.0.0)
+        required: true
+        default: v1.0.0
+      target_commitish:
+        description: Branch or commit SHA to tag
+        required: true
+        default: main
+      release_name:
+        description: Release title
+        required: true
+        default: First Official Release - CF14-Enhanced Document Generation
+      body_path:
+        description: Path to release notes file
+        required: true
+        default: RELEASE_NOTES_v1.0.0.md
+      prerelease:
+        description: Mark as pre-release
+        required: false
+        default: 'false'
+      draft:
+        description: Create as draft
+        required: false
+        default: 'false'
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine inputs
+        id: vars
+        run: |
+          # Set defaults for push tag events
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG_REF="${GITHUB_REF##*/}"
+            echo "tag_name=${TAG_REF}" >> "$GITHUB_OUTPUT"
+            echo "target_commitish=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+            echo "release_name=${TAG_REF}" >> "$GITHUB_OUTPUT"
+            echo "body_path=RELEASE_NOTES_v1.0.0.md" >> "$GITHUB_OUTPUT"
+            echo "draft=false" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag_name=${{ inputs.tag_name }}" >> "$GITHUB_OUTPUT"
+            echo "target_commitish=${{ inputs.target_commitish }}" >> "$GITHUB_OUTPUT"
+            echo "release_name=${{ inputs.release_name }}" >> "$GITHUB_OUTPUT"
+            echo "body_path=${{ inputs.body_path }}" >> "$GITHUB_OUTPUT"
+            echo "draft=${{ inputs.draft }}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=${{ inputs.prerelease }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.vars.outputs.tag_name }}
+          target_commitish: ${{ steps.vars.outputs.target_commitish }}
+          release_name: ${{ steps.vars.outputs.release_name }}
+          body_path: ${{ steps.vars.outputs.body_path }}
+          draft: ${{ steps.vars.outputs.draft }}
+          prerelease: ${{ steps.vars.outputs.prerelease }}
