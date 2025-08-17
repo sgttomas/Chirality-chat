@@ -1,1 +1,0 @@
-export { OntologyChips, UFOChips, BFOChips, OntologyLegend } from './OntologyChips'

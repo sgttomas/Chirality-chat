@@ -2,7 +2,6 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { Card, CardContent, Button } from '@/components/ui'
-import { analytics } from '@/lib/analytics'
 
 interface Props {
   children: ReactNode
@@ -28,9 +27,6 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({ error, errorInfo })
-    
-    // Log error to analytics
-    analytics.trackError(error, 'react_error_boundary')
     
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo)
@@ -118,10 +114,7 @@ export function ChatErrorBoundary({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
-        analytics.track('error', 'chat_error', undefined, undefined, {
-          message: error.message,
-          component: 'chat'
-        })
+        console.error('Chat error:', error.message)
       }}
       fallback={
         <Card className="h-full flex items-center justify-center border-red-200 bg-red-50">
@@ -153,10 +146,7 @@ export function MatrixErrorBoundary({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
-        analytics.track('error', 'matrix_error', undefined, undefined, {
-          message: error.message,
-          component: 'matrix'
-        })
+        console.error('Matrix error:', error.message)
       }}
       fallback={
         <Card className="h-full flex items-center justify-center border-red-200 bg-red-50">
@@ -188,10 +178,7 @@ export function MCPErrorBoundary({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
-        analytics.track('error', 'mcp_error', undefined, undefined, {
-          message: error.message,
-          component: 'mcp'
-        })
+        console.error('MCP error:', error.message)
       }}
       fallback={
         <Card className="h-full flex items-center justify-center border-red-200 bg-red-50">
@@ -222,12 +209,12 @@ export function MCPErrorBoundary({ children }: { children: ReactNode }) {
 // Global error handler for unhandled promise rejections
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
-    analytics.trackError(new Error(event.reason), 'unhandled_promise_rejection')
+    console.error('Unhandled promise rejection:', event.reason)
     console.error('Unhandled promise rejection:', event.reason)
   })
 
   window.addEventListener('error', (event) => {
-    analytics.trackError(event.error || new Error(event.message), 'global_error')
+    console.error('Global error:', event.error || event.message)
     console.error('Global error:', event.error || event.message)
   })
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { QueryProvider } from '@/components/providers'
 import { ErrorBoundary } from '@/components/ui'
 
 export const metadata: Metadata = {
@@ -17,9 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ErrorBoundary>
-          <QueryProvider>
-            {children}
-          </QueryProvider>
+          {children}
         </ErrorBoundary>
       </body>
     </html>

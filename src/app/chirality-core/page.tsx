@@ -43,7 +43,7 @@ export default function ChiralityCoreUI() {
     setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`])
   }
 
-  const generateDocuments = async () => {
+  const generateDocuments = async (useTwoPass = false) => {
     if (!problemStatement.trim()) {
       alert('Please enter a problem statement')
       return
@@ -71,72 +71,96 @@ export default function ChiralityCoreUI() {
       if (!stateResponse.ok) throw new Error('Failed to set problem')
       addLog('✓ Problem statement set')
 
-      // Step 2: Generate DS
-      addLog('Generating Data Sheet (DS)...')
-      const dsResponse = await fetch('/api/core/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'DS' })
-      })
-      const dsData = await dsResponse.json()
-      if (dsData.error) {
-        addLog(`⚠️ DS generation failed: ${dsData.error}`)
-        // Still save error state
-        setDocuments(prev => ({ ...prev, DS: { text: { error: dsData.error }, terms_used: [], warnings: [dsData.error] } }))
+      if (useTwoPass) {
+        // Use the new two-pass orchestration endpoint
+        addLog('Starting two-pass generation with refinement...')
+        const orchestrateResponse = await fetch('/api/core/orchestrate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        })
+        
+        const data = await orchestrateResponse.json()
+        
+        if (data.error) {
+          throw new Error(data.error)
+        }
+        
+        // Add all logs from the orchestration
+        data.logs.forEach((log: string) => addLog(log))
+        
+        // Set the final refined documents
+        setDocuments(data.pass2)
+        
+        addLog(`✅ Two-pass generation complete in ${data.totalTimeSeconds}s!`)
       } else {
-        setDocuments(prev => ({ ...prev, DS: dsData.triple }))
-        addLog(`✓ DS generated in ${((dsData.latencyMs || 0)/1000).toFixed(1)}s`)
-      }
+        // Original single-pass generation
+        // Step 2: Generate DS
+        addLog('Generating Data Sheet (DS)...')
+        const dsResponse = await fetch('/api/core/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kind: 'DS' })
+        })
+        const dsData = await dsResponse.json()
+        if (dsData.error) {
+          addLog(`⚠️ DS generation failed: ${dsData.error}`)
+          setDocuments(prev => ({ ...prev, DS: { text: { error: dsData.error }, terms_used: [], warnings: [dsData.error] } }))
+        } else {
+          setDocuments(prev => ({ ...prev, DS: dsData.triple }))
+          addLog(`✓ DS generated in ${((dsData.latencyMs || 0)/1000).toFixed(1)}s`)
+        }
 
-      // Step 3: Generate SP
-      addLog('Generating Procedural Checklist (SP)...')
-      const spResponse = await fetch('/api/core/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'SP' })
-      })
-      const spData = await spResponse.json()
-      if (spData.error) {
-        addLog(`⚠️ SP generation failed: ${spData.error}`)
-        setDocuments(prev => ({ ...prev, SP: { text: { error: spData.error }, terms_used: [], warnings: [spData.error] } }))
-      } else {
-        setDocuments(prev => ({ ...prev, SP: spData.triple }))
-        addLog(`✓ SP generated in ${((spData.latencyMs || 0)/1000).toFixed(1)}s`)
-      }
+        // Step 3: Generate SP
+        addLog('Generating Procedural Checklist (SP)...')
+        const spResponse = await fetch('/api/core/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kind: 'SP' })
+        })
+        const spData = await spResponse.json()
+        if (spData.error) {
+          addLog(`⚠️ SP generation failed: ${spData.error}`)
+          setDocuments(prev => ({ ...prev, SP: { text: { error: spData.error }, terms_used: [], warnings: [spData.error] } }))
+        } else {
+          setDocuments(prev => ({ ...prev, SP: spData.triple }))
+          addLog(`✓ SP generated in ${((spData.latencyMs || 0)/1000).toFixed(1)}s`)
+        }
 
-      // Step 4: Generate X
-      addLog('Generating Solution Template (X)...')
-      const xResponse = await fetch('/api/core/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'X' })
-      })
-      const xData = await xResponse.json()
-      if (xData.error) {
-        addLog(`⚠️ X generation failed: ${xData.error}`)
-        setDocuments(prev => ({ ...prev, X: { text: { error: xData.error }, terms_used: [], warnings: [xData.error] } }))
-      } else {
-        setDocuments(prev => ({ ...prev, X: xData.triple }))
-        addLog(`✓ X generated in ${((xData.latencyMs || 0)/1000).toFixed(1)}s`)
-      }
+        // Step 4: Generate X
+        addLog('Generating Solution Template (X)...')
+        const xResponse = await fetch('/api/core/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kind: 'X' })
+        })
+        const xData = await xResponse.json()
+        if (xData.error) {
+          addLog(`⚠️ X generation failed: ${xData.error}`)
+          setDocuments(prev => ({ ...prev, X: { text: { error: xData.error }, terms_used: [], warnings: [xData.error] } }))
+        } else {
+          setDocuments(prev => ({ ...prev, X: xData.triple }))
+          addLog(`✓ X generated in ${((xData.latencyMs || 0)/1000).toFixed(1)}s`)
+        }
 
-      // Step 5: Generate M
-      addLog('Generating Guidance (M)...')
-      const mResponse = await fetch('/api/core/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'M' })
-      })
-      const mData = await mResponse.json()
-      if (mData.error) {
-        addLog(`⚠️ M generation failed: ${mData.error}`)
-        setDocuments(prev => ({ ...prev, M: { text: { error: mData.error }, terms_used: [], warnings: [mData.error] } }))
-      } else {
-        setDocuments(prev => ({ ...prev, M: mData.triple }))
-        addLog(`✓ M generated in ${((mData.latencyMs || 0)/1000).toFixed(1)}s`)
-      }
+        // Step 5: Generate M
+        addLog('Generating Guidance (M)...')
+        const mResponse = await fetch('/api/core/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kind: 'M' })
+        })
+        const mData = await mResponse.json()
+        if (mData.error) {
+          addLog(`⚠️ M generation failed: ${mData.error}`)
+          setDocuments(prev => ({ ...prev, M: { text: { error: mData.error }, terms_used: [], warnings: [mData.error] } }))
+        } else {
+          setDocuments(prev => ({ ...prev, M: mData.triple }))
+          addLog(`✓ M generated in ${((mData.latencyMs || 0)/1000).toFixed(1)}s`)
+        }
 
-      addLog('✅ All documents generated successfully!')
+        addLog('✅ All documents generated successfully!')
+      }
       
     } catch (error) {
       addLog(`❌ Error: ${error}`)
@@ -341,17 +365,30 @@ export default function ChiralityCoreUI() {
               </div>
             </div>
 
-            <button
-              onClick={generateDocuments}
-              disabled={isGenerating || !problemStatement.trim()}
-              className={`w-full py-3 rounded-lg font-medium ${
-                isGenerating || !problemStatement.trim()
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              {isGenerating ? 'Generating Documents...' : 'Generate All Documents (DS→SP→X→M)'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => generateDocuments(false)}
+                disabled={isGenerating || !problemStatement.trim()}
+                className={`flex-1 py-3 rounded-lg font-medium ${
+                  isGenerating || !problemStatement.trim()
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {isGenerating ? 'Generating...' : 'Single Pass (DS→SP→X→M)'}
+              </button>
+              <button
+                onClick={() => generateDocuments(true)}
+                disabled={isGenerating || !problemStatement.trim()}
+                className={`flex-1 py-3 rounded-lg font-medium ${
+                  isGenerating || !problemStatement.trim()
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
+              >
+                {isGenerating ? 'Generating...' : '🔄 Two-Pass with Resolution'}
+              </button>
+            </div>
           </div>
         </div>
 

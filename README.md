@@ -1,282 +1,142 @@
-# Chirality AI App - Document Generation Interface
+# Chirality Core Chat
 
-A modern, graph-free chat interface for the Chirality Framework, providing conversational AI access to semantic document generation and knowledge management through real-time streaming responses.
+A streamlined chatbot interface with RAG (Retrieval-Augmented Generation) powered by the Chirality Framework's document system.
 
-> **⚡ Complete Development Environment**: For full multi-service setup including backend services and desktop app, see **[Chirality AI - Complete Developer Setup Guide](https://github.com/[org]/chirality-ai#-complete-developer-setup-guide)**.
+## Features
 
-## 🚀 What's New
+- **Document-Enhanced Chat**: Automatic context injection from generated DS/SP/X/M documents
+- **Real-time Streaming**: Server-sent events for responsive chat experience  
+- **Document Generation**: Create semantic documents through chat commands
+- **File-based State**: Simple, database-free persistence
+- **Clean Architecture**: Minimal dependencies, focused functionality
 
-This application has been recently updated with:
-- **Graph-free Chirality Core**: Complete independence from GraphQL/Neo4j with in-memory RAG
-- **OpenAI Responses API**: Full migration from Chat Completions API for improved streaming
-- **4-Document Workflow**: DS (Data Template) → SP (Procedural Checklist) → X (Solution Template) → M (Guidance)
-- **Admin Dashboard**: Full transparency into chat LLM system prompts and document injection at `/chat-admin`
-- **Fixed SSE Streaming**: Robust Server-Sent Events implementation with proper error handling
-- **Document RAG Chat**: True retrieval-augmented generation injecting generated documents into chat context
-
-## 🏗️ Architecture
-
-### Split-Apps Architecture
-- **This Repository**: Document generation UI with graph-free Chirality Core
-- **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: Backend semantic engine & GraphQL service
-- **[Chirality-AI](https://github.com/[org]/chirality-ai)**: Production orchestration & desktop packaging
-
-## 🏃‍♂️ Standalone Development (This Repository Only)
-
-```bash
-npm install
-npm run dev  # Starts on http://localhost:3000
-```
-
-**Key URLs:**
-- **Main Interface**: http://localhost:3000
-- **Chirality Core**: http://localhost:3000/chirality-core ⭐ (document generation)
-- **Admin Dashboard**: http://localhost:3000/chat-admin
-- **Health Check**: http://localhost:3000/api/healthz
-
-**Requirements:**
-- Node.js 20.x
-- OpenAI API key in `.env.local`
-- Optional: GraphQL service on port 8080 (for advanced features)
-
-### Core Technologies
-- **Frontend**: Next.js 15.2.3, React 18, TypeScript
-- **Streaming**: OpenAI Responses API with Server-Sent Events
-- **State**: Zustand for UI state, React Query for server state, file-based document storage
-- **Styling**: Tailwind CSS with custom accessibility-compliant components
-- **AI**: OpenAI gpt-4.1-nano model exclusively
-
-## 🎯 Key Features
-
-### 🤖 Chirality Document Generation
-- **Set Problem**: Define problem statements with initial analysis vectors
-- **Generate DS**: Data Template with structured field definitions
-- **Generate SP**: Procedural Checklist with step-by-step workflows  
-- **Generate X**: Solution Template with narrative solutions
-- **Generate M**: Guidance documents with justifications
-- **Clear All**: Reset all documents and problem state
-
-### 💬 RAG-Enhanced Chat
-- **Document Injection**: All generated documents automatically injected into chat system prompt
-- **Citation Support**: References to generated documents with ID tracking
-- **Streaming Responses**: Real-time response streaming with robust SSE implementation
-- **Command Support**: Natural language commands for document generation
-
-### 🔧 Developer Tools
-- **Admin Dashboard** (`/chat-admin`): Full visibility into system prompts and document injection
-- **Debug Endpoints**: Testing and validation endpoints for chat configuration
-- **Health Checks**: Service availability monitoring
-- **Error Boundaries**: Graceful error handling throughout the application
-
-### 🎨 User Experience
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Accessibility**: WCAG 2.1 AA compliance with keyboard navigation
-- **Real-time Updates**: Auto-refreshing admin dashboard with metrics
-- **Performance**: React memoization, optimized rendering, efficient state management
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+
 - OpenAI API key
-- (Optional) Neo4j database for advanced GraphQL operations
 
 ### Installation
 
-1. **Clone and install:**
 ```bash
-git clone https://github.com/sgttomas/Chirality-chat.git
-cd Chirality-chat
 npm install
 ```
 
-2. **Configure environment:**
+### Configuration
+
 Create `.env.local`:
 ```env
-# Required: OpenAI Configuration
-OPENAI_API_KEY=sk-proj-your-openai-api-key
-OPENAI_MODEL=gpt-4.1-nano
-DEFAULT_TEMPERATURE=0.6
-MAX_OUTPUT_TOKENS=800
-
-# Optional: Neo4j (for advanced GraphQL operations)
-NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=your-password
-
-# Optional: Framework integration
-GRAPHQL_ENDPOINT=http://localhost:8080/graphql
+OPENAI_API_KEY=sk-proj-your-api-key
+OPENAI_MODEL=gpt-4o-mini  # or your preferred model
 ```
 
-3. **Start the application:**
+### Run
+
 ```bash
-npm run dev  # Starts on http://localhost:3000
+npm run dev
 ```
 
-## 📖 Usage Guide
+Visit http://localhost:3000 - you'll be redirected to the Chirality Core interface.
 
-### Basic Workflow
-
-1. **Navigate to Chirality Core** (`/chirality-core`)
-2. **Set a problem**: Click "Set Test Problem" or use chat command `"set problem: [description]"`
-3. **Generate documents** in sequence:
-   - `"generate DS"` - Creates data template
-   - `"generate SP"` - Creates procedural checklist  
-   - `"generate X"` - Creates solution template
-   - `"generate M"` - Creates guidance document
-4. **Use RAG Chat** (`/`) - Generated documents are automatically injected into chat context
-5. **Monitor system** (`/chat-admin`) - View full transparency into document injection
+## Usage
 
 ### Chat Commands
 
-The chat interface supports natural language commands:
-- `"set problem: [your problem description]"` - Define the problem to work on
-- `"generate DS"` - Generate Data Template document
-- `"generate SP"` - Generate Procedural Checklist document
-- `"generate X"` - Generate Solution Template document
-- `"generate M"` - Generate Guidance document
+The chatbot responds to these special commands:
 
-### Admin Dashboard Features
+- `set problem: [description]` - Define the problem context
+- `generate DS` - Generate Data Sheet document
+- `generate SP` - Generate Procedural Checklist
+- `generate X` - Generate Solution Template
+- `generate M` - Generate Guidance document
 
-Visit `/chat-admin` for complete transparency:
-- **Document Status**: Real-time view of generated documents
-- **System Instructions**: Full system prompt sent to OpenAI
-- **Compacted Documents**: Optimized document content as injected
-- **Raw Documents**: Full document data structures
-- **Auto-refresh**: 2-second polling for live updates
-- **Test Endpoints**: Direct testing of chat configuration
+### Document Workflow
 
-## 🏃‍♂️ Performance & Optimization
+1. **Set a Problem**: Start by defining what you're working on
+2. **Generate Documents**: Create DS→SP→X→M in sequence
+3. **Chat with Context**: Documents are automatically injected into chat context
+4. **RAG-Enhanced Responses**: The AI references your documents when answering
 
-### Streaming Implementation
-- **Robust SSE**: Fixed connection handling with proper error recovery
-- **Content Accumulation**: Prevents message loss during streaming
-- **Delta Processing**: Efficient incremental content updates
+## Architecture
 
-### Document Management
-- **File-based Storage**: Persistent state without database dependencies
-- **Compact Serialization**: Optimized document representation for AI context
-- **JSON Parsing**: Robust handling of malformed LLM responses with fallbacks
+```
+/chirality-core         # Main UI page
+/api/chat/stream       # SSE chat endpoint with RAG
+/api/core/run          # Document generation
+/api/core/state        # State management
+/chirality-core/*      # Core orchestration logic
+```
 
-### Frontend Optimizations
-- **React Memoization**: Optimized component re-rendering
-- **State Management**: Efficient Zustand store with minimal re-renders
-- **Error Boundaries**: Graceful degradation on component failures
+### Key Components
 
-## 🛠️ Development
+- **Streaming Chat**: OpenAI API integration with SSE
+- **Document Orchestration**: Two-pass LLM generation (draft → final)
+- **State Management**: File-based persistence in temp directory
+- **Context Injection**: Automatic document embedding in chat prompts
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Run production build
+- `npm run lint` - Run linter
+- `npm run type-check` - TypeScript validation
 
 ### Project Structure
+
 ```
 src/
-├── app/                          # Next.js App Router
-│   ├── api/chat/                # Chat endpoints
-│   │   ├── stream/              # Main streaming endpoint
-│   │   ├── debug/               # Debug information
-│   │   └── test/                # Testing endpoint
-│   ├── api/core/                # Chirality Core API
-│   │   └── state/               # Document state management
-│   ├── chat-admin/              # Admin dashboard
-│   ├── chirality-core/          # Core document generation
-│   └── page.tsx                 # Main chat interface
-├── chirality-core/              # Graph-free Chirality implementation
-│   ├── state/                   # File-based state storage
-│   ├── vendor/                  # LLM integration (Responses API)
-│   ├── orchestrate.ts           # Document generation logic
-│   └── compactor.ts             # Document optimization
-├── components/                  # React components
-│   ├── chat/                    # Chat interface
-│   ├── ui/                      # Reusable components
-│   └── mcp/                     # MCP integration
-├── hooks/                       # Custom React hooks
-└── lib/                         # Utilities and services
+├── app/
+│   ├── chirality-core/    # Main UI
+│   └── api/
+│       ├── chat/          # Chat endpoints
+│       └── core/          # Document endpoints
+├── chirality-core/        # Core logic
+│   ├── orchestrate.ts     # Document generation
+│   ├── state/            # State management
+│   └── vendor/           # OpenAI integration
+└── components/
+    └── chat/             # Chat UI components
 ```
 
-### Key Files
+## API Endpoints
 
-- **`/src/app/api/chat/stream/route.ts`**: Main chat endpoint with RAG document injection
-- **`/src/chirality-core/orchestrate.ts`**: Document generation with LLM integration
-- **`/src/chirality-core/vendor/llm.ts`**: OpenAI Responses API wrapper
-- **`/src/app/chat-admin/page.tsx`**: Admin dashboard for system transparency
-- **`/src/chirality-core/state/store.ts`**: File-based state persistence
+### POST /api/chat/stream
+Stream chat responses with document context
 
-### Testing
-
-```bash
-# Health checks
-curl http://localhost:3000/api/healthz
-
-# Chat debug info
-curl http://localhost:3000/api/chat/debug
-
-# Test document injection
-curl -X POST http://localhost:3000/api/chat/test \
-  -H "Content-Type: application/json" \
-  -d '{"testMessage": "What documents are available?"}'
+```typescript
+{
+  message: string
+  conversationId?: string
+}
 ```
 
-### Building for Production
+### POST /api/core/run
+Generate a specific document
 
-```bash
-npm run build    # Production build
-npm start        # Start production server
+```typescript
+{
+  kind: 'DS' | 'SP' | 'X' | 'M'
+}
 ```
 
-## 🔧 Troubleshooting
+### GET/POST/DELETE /api/core/state
+Manage document state
 
-### Common Issues
+## Contributing
 
-**SSE Connection Errors**: Ensure OpenAI API key is valid and has credits
-**Document Generation Fails**: Check OpenAI model permissions for gpt-4.1-nano
-**Port Conflicts**: Use `lsof -i :3000` to find conflicting processes
-**Turbopack Issues**: Disable with `TURBOPACK=0 npm run dev`
+This is a simplified, focused implementation. When contributing:
+- Keep dependencies minimal
+- Maintain the RAG-first approach
+- Preserve the clean separation between chat and document generation
+- Test document generation and chat flows
 
-### Debug Mode
-```bash
-DEBUG=* npm run dev  # Enable verbose logging
-```
+## License
 
-### Environment Variables
-```env
-# Debugging
-NODE_ENV=development
-DEBUG=true
-NEXT_TELEMETRY_DISABLED=1
-
-# Performance tuning
-OPENAI_API_TIMEOUT=60000
-MAX_TOKENS=2000
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make changes with proper TypeScript typing
-4. Test with admin dashboard for verification
-5. Submit a pull request
-
-### Code Style
-- TypeScript strict mode enabled
-- Prefer named exports over default exports
-- Use barrel imports from index files
-- Follow React best practices with hooks
-
-## 📜 License
-
-MIT License - see LICENSE file for details.
-
-## 🔗 Related Projects
-
-- **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: Backend GraphQL service and Python CLI
-- **[Neo4j](https://neo4j.com/)**: Graph database for semantic relationships
-- **[OpenAI](https://openai.com/)**: AI model provider for document generation
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/sgttomas/Chirality-chat/issues)
-- **Documentation**: See `HELP.md` for detailed troubleshooting
-- **Framework Docs**: [Chirality Framework](https://github.com/sgttomas/Chirality-Framework)
+MIT
 
 ---
 
-🤖 **Last Updated**: This README reflects the current state with graph-free Chirality Core, fixed SSE streaming, OpenAI Responses API integration, and comprehensive admin dashboard for full system transparency.
+Built on the Chirality Framework's semantic document architecture.

@@ -12,6 +12,13 @@ type CoreState = {
     initialVector: string[] 
   };
   finals: Finals;
+  metadata?: {
+    pass1?: any;
+    generatedAt?: string;
+    twoPassMode?: boolean;
+    resolutionStep?: boolean;
+    [key: string]: any;
+  };
 };
 
 export function ensureStore() {

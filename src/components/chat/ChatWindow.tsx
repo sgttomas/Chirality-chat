@@ -2,14 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { useStream, StreamMessage } from '@/hooks/useStream'
-import { storage } from '@/lib/storage'
 import { Message } from './Message'
 import { ChatInput } from './ChatInput'
 import { TypingIndicator } from './TypingIndicator'
 import { Card, CardHeader, CardContent, Button } from '@/components/ui'
 import Link from 'next/link'
-import { AriaRoles, ScreenReader } from '@/lib/accessibility'
-import { exportUtils } from '@/lib/export'
 
 export const ChatWindow = memo(function ChatWindow() {
   const [messages, setMessages] = useState<StreamMessage[]>([])
@@ -23,11 +20,7 @@ export const ChatWindow = memo(function ChatWindow() {
       return [...filtered, message].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
     })
     
-    try {
-      await storage.saveMessage(message)
-    } catch (error) {
-      console.error('Failed to save message:', error)
-    }
+    // Storage removed for simplicity
   }, [])
 
   const handleError = useCallback((error: Error) => {
@@ -41,18 +34,7 @@ export const ChatWindow = memo(function ChatWindow() {
 
   // Load messages on mount
   useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const savedMessages = await storage.getMessages()
-        setMessages(savedMessages)
-      } catch (error) {
-        console.error('Failed to load messages:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    
-    loadMessages()
+    setIsLoading(false)
   }, [])
 
   // Auto-scroll to bottom
@@ -60,28 +42,18 @@ export const ChatWindow = memo(function ChatWindow() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, currentMessage])
 
-  const handleClearMessages = useCallback(async () => {
-    try {
-      await storage.clearMessages()
-      setMessages([])
-      ScreenReader.announce('All messages cleared')
-    } catch (error) {
-      console.error('Failed to clear messages:', error)
-      ScreenReader.announce('Failed to clear messages')
-    }
+  const handleClearMessages = useCallback(() => {
+    setMessages([])
   }, [])
 
-  const handleExportMessages = useCallback(async () => {
-    try {
-      await exportUtils.exportChat(messages, 'json', {
-        includeTimestamps: true,
-        includeMetadata: true
-      })
-      ScreenReader.announce('Chat conversation exported successfully')
-    } catch (error) {
-      console.error('Failed to export messages:', error)
-      ScreenReader.announce('Failed to export conversation')
-    }
+  const handleExportMessages = useCallback(() => {
+    const blob = new Blob([JSON.stringify(messages, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `chat-${Date.now()}.json`
+    a.click()
+    URL.revokeObjectURL(url)
   }, [messages])
 
   if (isLoading) {
