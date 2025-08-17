@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { runDoc } from '@/chirality-core/orchestrate';
 import { readState, writeState } from '@/chirality-core/state/store';
 import { DocKind } from '@/chirality-core/contracts';
+import { mirrorAfterWrite } from '@/lib/graph/integration';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +31,9 @@ export async function POST(request: NextRequest) {
     // Pin immediately
     const finals = { ...state.finals, [kind]: triple };
     writeState({ finals });
+
+    // Mirror to graph after successful file write (non-blocking)
+    mirrorAfterWrite(finals);
     
     return NextResponse.json({ kind, triple, latencyMs });
   } catch (error) {
