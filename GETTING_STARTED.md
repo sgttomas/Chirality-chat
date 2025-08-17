@@ -1,298 +1,81 @@
-# Getting Started with Chirality Chat
+# Getting Started with Chirality Core Chat
 
-A comprehensive user guide for interacting with the Chirality Chat interface - your gateway to AI-powered semantic document generation and retrieval-augmented generation (RAG) conversations.
+Welcome! This guide will get you up and running with the Chirality Core Chat system in minutes.
 
-## 🚀 Quick Start
+## 🚀 Quick Setup
 
-1. **Navigate to Chat**: http://localhost:3001
-2. **Try a question**: Ask about any topic or use existing documents
-3. **Generate documents**: Use natural language commands
-4. **Monitor system**: Visit admin dashboard for transparency
+### 1. Prerequisites
+- **Node.js 18+** installed
+- **OpenAI API key** ([Get one here](https://platform.openai.com/api-keys))
 
-## 🌐 Interface Overview
+### 2. Installation
+```bash
+# Clone or navigate to the project
+cd chirality-ai-app
 
-### Main Interfaces
+# Install dependencies
+npm install
 
-#### 1. **Chat Interface** - `/` 
-*Primary conversation experience with RAG-enhanced AI*
+# Set up environment
+echo "OPENAI_API_KEY=sk-proj-your-key-here" > .env.local
+echo "OPENAI_MODEL=gpt-4.1-nano" >> .env.local
 
-**What you can do:**
-- Have natural conversations with AI
-- Generated documents automatically provide context
-- Use chat commands to generate new documents
-- Get real-time streaming responses
-- Copy and share messages
-
-**Key Features:**
-- Real-time streaming responses with SSE
-- Markdown rendering with syntax highlighting
-- Automatic document context injection
-- Mobile-responsive design
-- Accessibility-compliant (WCAG 2.1 AA)
-
-#### 2. **Chirality Core Dashboard** - `/chirality-core`
-*Document generation control center*
-
-**What you can do:**
-- Set problem statements to work on
-- Generate 4 types of structured documents
-- Use quick test problems for experimentation
-- Clear all documents to start fresh
-- Export generated documents
-
-**Document Types:**
-- **DS (Data Template)**: Structured data field definitions
-- **SP (Procedural Checklist)**: Step-by-step workflow procedures
-- **X (Solution Template)**: Narrative solution frameworks
-- **M (Guidance)**: Justification and guidance documents
-
-#### 3. **Admin Dashboard** - `/chat-admin`
-*System transparency and debugging interface*
-
-**What you can do:**
-- View complete system prompts sent to OpenAI
-- Monitor document injection in real-time
-- Test chat endpoints directly
-- Inspect raw document data
-- Watch auto-refreshing metrics (updates every 2 seconds)
-
-**Transparency Features:**
-- Full system instruction visibility
-- Document compaction preview
-- OpenAI API payload inspection
-- Validation status monitoring
-
-## 💬 Chat Commands Reference
-
-### Document Generation Commands
-Use these natural language phrases in any chat interface:
-
-```
-"set problem: [describe your problem]"
-```
-*Defines the problem statement for document generation*
-
-```
-"generate DS"
-```
-*Creates a Data Template with structured field definitions*
-
-```
-"generate SP" 
-```
-*Creates a Procedural Checklist with step-by-step workflows*
-
-```
-"generate X"
-```
-*Creates a Solution Template with narrative solutions*
-
-```
-"generate M"
-```
-*Creates Guidance documents with justifications*
-
-```
-"clear all"
-```
-*Resets all documents and problem state*
-
-### Example Workflow
-```
-User: "set problem: How to optimize database performance"
-AI: [Sets problem and provides initial analysis]
-
-User: "generate DS"
-AI: [Creates data template for database metrics]
-
-User: "generate SP"  
-AI: [Creates procedural checklist for optimization steps]
-
-User: "What are the key performance indicators I should monitor?"
-AI: [Responds using context from generated DS and SP documents]
+# Start the app
+npm run dev
 ```
 
-## 🎮 Interactive Controls
+### 3. First Use
+1. Open **http://localhost:3001** in your browser
+2. You'll be redirected to the Chirality Core interface
+3. Enter a problem (e.g., "how to build a REST API")
+4. Click **"🔄 Two-Pass with Resolution"** for best results
+5. Watch the documents generate in real-time
+6. Use the generated documents in chat at the home page
 
-### Chat Interface Controls
+## 🎯 What You'll See
 
-**Message Input:**
-- Type questions or commands
-- Press Enter to send
-- Shift+Enter for new lines
+### Document Generation
+The system creates four interconnected documents:
+- **DS** (Data Sheet) - Technical specifications and data requirements
+- **SP** (Procedural Checklist) - Step-by-step implementation procedures
+- **X** (Solution Template) - Integrated solution approach
+- **M** (Guidance) - Strategic recommendations and best practices
 
-**Message Actions:**
-- **Copy button**: Copy any message content
-- **Scroll behavior**: Auto-scroll to new messages
-- **Typing indicators**: Visual feedback during AI responses
+### Two-Pass Process
+1. **Pass 1**: Generates all documents sequentially
+2. **Pass 2**: Refines each document using insights from the others
+3. **Resolution**: Final update to ensure maximum coherence
 
-### Document Generation Controls
+### RAG-Enhanced Chat
+After generating documents, chat with the AI and it will automatically reference your generated content for more accurate, contextual responses.
 
-**Quick Actions:**
-- **Set Test Problem**: Pre-filled example problems
-- **Generate [Type]**: One-click document generation
-- **Clear All**: Reset workspace
-- **Export**: Download generated documents
+## 💡 Pro Tips
 
-**Visual Feedback:**
-- Progress indicators during generation
-- Success/error status displays
-- Document preview cards
-- Real-time update notifications
+- **Use Two-Pass Generation** for complex problems - the refinement makes a huge difference
+- **Start with clear problem statements** - better input leads to better documents
+- **Try different problem domains** - technical, business, creative, etc.
+- **Use the chat after generation** - the AI has your documents as context
 
-## 📱 User Experience Features
+## 🔧 Troubleshooting
 
-### Responsive Design
-- **Desktop**: Full-featured interface with side panels
-- **Tablet**: Optimized layout with collapsible sections  
-- **Mobile**: Touch-friendly controls with swipe navigation
+### Common Issues
+- **"Missing OpenAI API key"** → Check your `.env.local` file
+- **Port already in use** → The app will automatically use 3001 if 3000 is busy
+- **Generation fails** → Check your OpenAI API key has sufficient credits
 
-### Accessibility Features
-- **Keyboard navigation**: Full keyboard support
-- **Screen reader**: ARIA labels and descriptions
-- **High contrast**: Clear visual hierarchy
-- **Focus management**: Logical tab order
+### Need Help?
+- Check the **README.md** for detailed documentation
+- Visit `/chat-admin` for system debugging
+- Review the logs in the document generation interface
 
-### Performance Optimizations
-- **Streaming responses**: Real-time message delivery
-- **Content caching**: Efficient re-rendering
-- **Error boundaries**: Graceful failure handling
-- **Auto-recovery**: Robust connection management
+## 🎉 You're Ready!
 
-## 🗺️ User Journey Paths
+That's it! You now have a powerful document generation and RAG chat system running locally. Start with a simple problem and watch the magic happen.
 
-### Path 1: Quick Chat Experience
-1. Visit `/` (main chat)
-2. Ask questions using existing document context
-3. Use admin dashboard to understand how documents enhance responses
+**Next Steps:**
+- Try both single-pass and two-pass generation
+- Experiment with different types of problems
+- Use the generated documents in chat conversations
+- Explore the admin dashboard for insights
 
-### Path 2: Document Generation Workflow
-1. Visit `/chirality-core`
-2. Set a problem statement
-3. Generate DS → SP → X → M in sequence
-4. Return to `/` to chat with generated context
-5. Monitor injection at `/chat-admin`
-
-### Path 3: System Exploration
-1. Start at `/chat-admin` to understand current state
-2. Test endpoints to see document availability
-3. Visit `/chirality-core` to generate new documents
-4. Use `/` to experience RAG-enhanced conversations
-
-### Path 4: Power User Analysis
-1. Use `/chat-admin` for real-time system monitoring
-2. Generate documents at `/chirality-core`
-3. Analyze system prompts and document injection
-4. Test chat responses with transparent debugging
-
-## 🔍 Understanding Document Injection
-
-### How RAG Works in Chirality Chat
-
-When you chat, the system automatically:
-
-1. **Detects available documents** (DS, SP, X, M)
-2. **Compacts document content** for efficient AI context
-3. **Injects into system prompt** before sending to OpenAI
-4. **Provides context-aware responses** using your generated documents
-
-### Monitoring Document Usage
-
-**In Admin Dashboard:**
-- View exact system instructions sent to AI
-- See which documents are injected
-- Monitor token usage and optimization
-- Validate successful document integration
-
-**In Chat Interface:**
-- Responses reference your generated documents
-- AI provides citations and connections
-- Context-aware answers to domain-specific questions
-
-## 🎯 Common Use Cases
-
-### Academic Research
-```
-1. Set problem: "Literature review methodology for AI ethics"
-2. Generate DS → Data fields for paper analysis
-3. Generate SP → Review procedure checklist
-4. Chat: "How should I structure my analysis framework?"
-```
-
-### Business Process Design
-```
-1. Set problem: "Customer onboarding optimization"
-2. Generate DS → Customer data requirements
-3. Generate SP → Onboarding workflow steps
-4. Generate X → Solution architecture
-5. Chat: "What are the critical success metrics?"
-```
-
-### Technical Documentation
-```
-1. Set problem: "API integration best practices"
-2. Generate all document types
-3. Chat: "Create a developer guide using these documents"
-4. Export final documentation
-```
-
-### Problem-Solving Workshops
-```
-1. Use test problems for quick exploration
-2. Generate documents collaboratively
-3. Use chat to explore solutions
-4. Monitor system transparency for learning
-```
-
-## 🛠️ Tips and Best Practices
-
-### Effective Problem Statements
-- **Be specific**: "Database query optimization for e-commerce analytics"
-- **Include context**: "For a team of 5 developers with PostgreSQL"
-- **Define scope**: "Focus on read performance under high load"
-
-### Document Generation Strategy
-- **Start with DS**: Define data requirements first
-- **Follow with SP**: Establish procedures and workflows
-- **Use X for solutions**: Create narrative frameworks
-- **Finish with M**: Document justifications and guidance
-
-### Chat Optimization
-- **Ask specific questions**: Reference document types directly
-- **Request comparisons**: "Compare the DS and SP approaches"
-- **Seek elaboration**: "Expand on step 3 from the SP document"
-- **Test understanding**: "Summarize the key risks from document M"
-
-### Admin Dashboard Usage
-- **Monitor before and after**: See how documents change responses
-- **Validate injection**: Ensure all documents are properly included
-- **Debug issues**: Check system prompts for troubleshooting
-- **Optimize tokens**: Monitor content length and efficiency
-
-## 🔗 Integration Points
-
-### With External Systems
-- **Export capabilities**: Download documents in various formats
-- **API endpoints**: Programmatic access to generated content
-- **Health monitoring**: System status and availability checks
-
-### With Development Workflow
-- **Real-time debugging**: Live system prompt inspection
-- **Performance monitoring**: Token usage and response times
-- **Error tracking**: Graceful failure handling and recovery
-
-## 🎉 Next Steps
-
-Once comfortable with basic interactions:
-
-1. **Explore advanced features** in enhanced dashboard
-2. **Experiment with different problem domains**
-3. **Monitor system behavior** through admin interface
-4. **Integrate with workflows** using API endpoints
-5. **Contribute feedback** for continuous improvement
-
----
-
-🤖 **Remember**: Chirality Chat combines structured document generation with conversational AI to provide context-aware, domain-specific responses. The more structured documents you generate, the more intelligent and relevant your chat conversations become!
-
-For technical details, see **README.md**. For troubleshooting, see **HELP.md**. For development, see **ONBOARDING.md** and **CLAUDE.md**.
+Happy documenting! 🚀

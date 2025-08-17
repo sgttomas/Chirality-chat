@@ -1,300 +1,202 @@
-# Chirality Chat - Help & Troubleshooting Guide
+# Help & Troubleshooting - Chirality Core Chat
 
-## Table of Contents
-- [Quick Start](#quick-start)
-- [Common Issues & Solutions](#common-issues--solutions)
-- [Architecture Overview](#architecture-overview)
-- [Development Workflow](#development-workflow)
-- [API Integration](#api-integration)
-- [Troubleshooting](#troubleshooting)
-- [Performance Optimization](#performance-optimization)
+Having issues? This guide covers common problems and their solutions.
 
-## Quick Start
+## 🚨 Quick Fixes
 
-### Prerequisites
-- Node.js 18+ and npm
-- Access to Neo4j database (Aura or local)
-- OpenAI API key
-- [Chirality-Framework](https://github.com/sgttomas/Chirality-Framework) GraphQL service running
-
-### Installation
-
-1. **Clone and install:**
+### App Won't Start
 ```bash
-git clone https://github.com/sgttomas/Chirality-chat.git
-cd Chirality-chat
+# Check Node.js version (need 18+)
+node --version
+
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
 npm install
+
+# Check environment file
+cat .env.local
 ```
 
-2. **Configure environment:**
-Create `.env.local` file:
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=your-openai-api-key
-
-# Neo4j Configuration
-NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=your-password
-NEO4J_DATABASE=neo4j
-
-# Optional: GraphQL endpoint (defaults to localhost:8080)
-GRAPHQL_ENDPOINT=http://localhost:8080/graphql
-```
-
-3. **Start the application:**
+### Missing OpenAI API Key
 ```bash
-npm run dev  # Development mode with hot reload
-# or
-npm run build && npm start  # Production mode
+# Create/check your environment file
+echo "OPENAI_API_KEY=sk-proj-your-key-here" > .env.local
+echo "OPENAI_MODEL=gpt-4.1-nano" >> .env.local
 ```
 
-## Common Issues & Solutions
+### Port Issues
+The app automatically tries different ports:
+- First tries port 3000
+- Falls back to 3001 if 3000 is busy
+- Check the terminal output for the actual port
 
-### Issue: "OpenAI API error: 401"
-**Solution:** Verify your OPENAI_API_KEY in `.env.local` is valid and has credits.
+## 🔧 Document Generation Issues
 
-### Issue: "Neo4j connection failed"
-**Solutions:**
-1. Check Neo4j credentials in `.env.local`
-2. For Aura: Ensure URI starts with `neo4j+s://`
-3. For local: Use `bolt://localhost:7687`
-4. Verify database is running: `lsof -i :7687`
+### "DS payload invalid" Errors
+**Cause**: Model response doesn't match expected format
+**Solution**: 
+- Check OpenAI API key has sufficient credits
+- Verify model access to `gpt-4.1-nano`
+- Try single-pass generation first
 
-### Issue: "Message disappears after streaming"
-**Solution:** This was fixed in the latest version. Ensure you have the latest code with the `accumulatedContent` fix in `useStream.ts`.
+### Generation Hangs or Times Out
+**Cause**: Network issues or model availability
+**Solutions**:
+1. Check internet connection
+2. Verify OpenAI service status
+3. Try refreshing and generating again
+4. Use single-pass mode if two-pass fails
 
-### Issue: "Port 3000 already in use"
-**Solutions:**
+### Documents Show "Error generating document"
+**Debug Steps**:
+1. Check browser console for errors
+2. Check terminal logs for detailed error messages
+3. Visit `/chat-admin` to see system state
+4. Verify API key permissions
+
+## 💬 Chat Issues
+
+### Chat Not Referencing Documents
+**Cause**: Documents not properly injected or no documents generated
+**Solutions**:
+1. Generate documents first using `/chirality-core`
+2. Verify documents exist by visiting `/chat-admin`
+3. Try clearing state and regenerating documents
+
+### Streaming Stops or Breaks
+**Cause**: Network issues or SSE connection problems
+**Solutions**:
+1. Refresh the page
+2. Check browser network tab for failed requests
+3. Try a different browser
+4. Check terminal for server errors
+
+### Empty or Incomplete Responses
+**Cause**: Model context issues or API problems
+**Solutions**:
+1. Clear documents and regenerate
+2. Check OpenAI API status
+3. Verify model access
+
+## 🔍 Debugging Tools
+
+### Admin Dashboard (`/chat-admin`)
+Access detailed system information:
+- Current document state
+- Generated content
+- System prompts being sent to AI
+- Debug information
+
+### Browser Developer Tools
+1. **Console Tab**: Check for JavaScript errors
+2. **Network Tab**: Monitor API calls and responses
+3. **Application Tab**: Check local storage
+
+### Server Logs
+Check the terminal where you ran `npm run dev` for:
+- Document generation progress
+- API call details
+- Validation errors
+- Performance metrics
+
+## 🌐 API Testing
+
+### Test Document Generation
 ```bash
-# Find and kill process on port 3000
-lsof -i :3000
-kill -9 <PID>
-
-# Or use a different port
-PORT=3001 npm run dev
-```
-
-### Issue: "Turbopack hanging on startup"
-**Solutions:**
-1. Use Webpack instead: `TURBOPACK=0 npm run dev`
-2. Or update package.json: `"dev": "next dev --turbo=false"`
-3. Check for circular dependencies: `npx madge src --circular --extensions ts,tsx`
-
-### Issue: "GraphQL service not reachable"
-**Solutions:**
-1. Ensure Chirality-Framework GraphQL service is running:
-```bash
-cd ../chirality-semantic-framework/graphql-service
-npm run dev  # Should start on port 8080
-```
-2. Verify connection: `curl http://localhost:8080/graphql`
-
-## Architecture Overview
-
-### Frontend Stack
-- **Framework:** Next.js 15.2.3 with App Router
-- **Language:** TypeScript with strict typing
-- **Styling:** Tailwind CSS
-- **State:** Zustand for local state, React Query for server state
-- **Components:** Custom UI library with accessibility features
-
-### Key Components
-
-#### Chat System (`/src/components/chat/`)
-- `ChatWindow.tsx`: Main chat interface
-- `ChatInput.tsx`: Message input with streaming support
-- `Message.tsx`: Message display with markdown support
-- `TypingIndicator.tsx`: Visual feedback during streaming
-
-#### Matrix Visualization (`/src/components/matrix/`)
-- `MatrixCanvas.tsx`: Canvas-based matrix rendering
-- `MatrixControls.tsx`: Zoom, pan, and interaction controls
-- `MatrixPanel.tsx`: Container with Neo4j data integration
-
-#### Hooks (`/src/hooks/`)
-- `useStream.ts`: Server-sent events for streaming responses
-- `useSemantic.ts`: Neo4j/GraphQL data fetching
-- `useHealth.ts`: Service health monitoring
-- `useMCPClient.ts`: Model Context Protocol integration
-
-### Data Flow
-```
-User Input → ChatInput → useStream Hook → API Route → OpenAI
-                              ↓
-                    Server-Sent Events (SSE)
-                              ↓
-                    Message Component → Chat Display
-```
-
-## Development Workflow
-
-### Code Style
-- ESLint + Prettier configured
-- Run `npm run lint` before committing
-- TypeScript strict mode enabled
-
-### Testing
-```bash
-npm test          # Run test suite
-npm run test:e2e  # End-to-end tests
-```
-
-### Building for Production
-```bash
-npm run build    # Creates optimized production build
-npm run analyze  # Bundle size analysis
-```
-
-### Performance Monitoring
-- React DevTools Profiler for component performance
-- Chrome DevTools Performance tab for runtime analysis
-- Bundle analyzer: `ANALYZE=true npm run build`
-
-## API Integration
-
-### OpenAI Responses API
-The app uses OpenAI's Responses API with streaming:
-
-```typescript
-// API Route: /src/app/api/chat/stream/route.ts
-- Uses Server-Sent Events (SSE) for real-time streaming
-- Configured for gpt-4.1-nano model
-- Supports system prompts for Chirality Framework context
-```
-
-### Neo4j Integration
-Direct database queries via API routes:
-
-```typescript
-// API Routes: /src/app/api/neo4j/query/route.ts
-- get_matrices: Retrieve semantic matrices
-- get_components: Fetch Chirality components
-- knowledge_graph: Query entity relationships
-- custom: Execute Cypher queries
-```
-
-### GraphQL Service
-Connects to Chirality-Framework GraphQL service:
-- Default endpoint: `http://localhost:8080/graphql`
-- Used for complex graph queries
-- Type-safe with generated TypeScript types
-
-## Troubleshooting
-
-### Debug Mode
-Enable debug logging:
-```bash
-DEBUG=* npm run dev
-```
-
-### Check Service Health
-```bash
-# API health check
-curl http://localhost:3000/api/healthz
-
-# Neo4j connection test
-curl -X POST http://localhost:3000/api/neo4j/query \
+# Test single document generation
+curl -X POST http://localhost:3001/api/core/run \
   -H "Content-Type: application/json" \
-  -d '{"query_type": "ping"}'
+  -d '{"kind": "DS"}'
 
-# GraphQL service test
-curl http://localhost:8080/graphql \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ __schema { types { name } } }"}'
+# Test two-pass generation
+curl -X POST http://localhost:3001/api/core/orchestrate
+
+# Check current state
+curl http://localhost:3001/api/core/state
 ```
 
-### Common Environment Variables
-```env
-# Debugging
-NODE_ENV=development
-DEBUG=true
-
-# Performance
-NEXT_TELEMETRY_DISABLED=1  # Disable telemetry
-ANALYZE=true               # Enable bundle analysis
-
-# API Configuration
-OPENAI_API_TIMEOUT=60000   # API timeout in ms
-MAX_TOKENS=2000            # Max response tokens
-```
-
-## Performance Optimization
-
-### React Optimizations
-- Components use `React.memo` for expensive renders
-- `useMemo` and `useCallback` prevent unnecessary recalculations
-- Virtual scrolling for long chat histories
-
-### Canvas Rendering
-- Path2D caching for matrix nodes
-- RequestAnimationFrame for smooth animations
-- Offscreen canvas for complex calculations
-
-### Network Optimization
-- API route caching with React Query
-- Debounced search inputs
-- Lazy loading for heavy components
-
-### Bundle Optimization
-- Dynamic imports for code splitting
-- Tree shaking enabled
-- Turbopack for faster development builds (when stable)
-
-## Deployment
-
-### Vercel Deployment
+### Test Chat
 ```bash
-vercel --prod
+# Test chat endpoint
+curl -X POST http://localhost:3001/api/chat/stream \
+  -H "Content-Type: application/json" \
+  -d '{"message": "test message"}'
 ```
 
-### Docker Deployment
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY . .
-RUN npm ci --only=production
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
+## ⚠️ Common Error Messages
 
-### Environment Variables for Production
-- Set all `.env.local` variables in your deployment platform
-- Ensure CORS is configured for production domains
-- Use connection pooling for Neo4j in production
+### "OpenAI API error: 401"
+**Problem**: Invalid API key
+**Solution**: Check your `.env.local` file and verify the API key
 
-## Getting Help
+### "OpenAI API error: 429"
+**Problem**: Rate limit exceeded or insufficient credits
+**Solution**: Wait or add credits to your OpenAI account
 
-### Resources
-- [Main Repository](https://github.com/sgttomas/Chirality-chat)
-- [Framework Repository](https://github.com/sgttomas/Chirality-Framework)
-- [Neo4j Documentation](https://neo4j.com/docs/)
-- [OpenAI API Reference](https://platform.openai.com/docs/)
+### "Module not found" errors
+**Problem**: Missing dependencies
+**Solution**: Run `npm install`
 
-### Reporting Issues
+### "Cannot find module critters"
+**Problem**: Missing build dependency
+**Solution**: Run `npm install critters`
+
+### "Port 3000 is already in use"
+**Not an error**: App automatically uses port 3001
+**Check**: Terminal output for actual port number
+
+## 🎯 Performance Issues
+
+### Slow Document Generation
+**Normal behavior**: Two-pass generation takes longer
+- Single-pass: ~15-30 seconds
+- Two-pass with resolution: ~60-90 seconds
+
+**If unusually slow**:
+1. Check internet speed
+2. Try single-pass generation
+3. Check OpenAI service status
+
+### Memory Issues
+**Rare but possible**:
+1. Clear browser cache
+2. Restart the development server
+3. Clear document state: `curl -X DELETE http://localhost:3001/api/core/state`
+
+## 🆘 Still Need Help?
+
+### Check These Resources
+1. **README.md** - Comprehensive documentation
+2. **GETTING_STARTED.md** - Quick setup guide
+3. **CLAUDE.md** - Technical details for developers
+
+### Gather Debug Information
 When reporting issues, include:
-1. Error messages from console
-2. Network tab screenshots
-3. Environment configuration (redact sensitive data)
-4. Steps to reproduce
+1. Browser and version
+2. Node.js version (`node --version`)
+3. Error messages from browser console
+4. Error messages from terminal
+5. Steps to reproduce the problem
 
-### Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Make changes with tests
-4. Submit a pull request
+### Reset Everything
+If all else fails, complete reset:
+```bash
+# Stop the server (Ctrl+C)
+rm -rf node_modules package-lock.json
+rm -rf .next
+npm install
+npm run dev
+```
 
-## Version History
+## ✅ Verification Checklist
 
-### v1.0.0 (Current)
-- Initial release with core chat functionality
-- OpenAI Responses API integration
-- Neo4j semantic matrix visualization
-- MCP tool integration
-- Full accessibility support
-- PWA capabilities
+When everything works correctly, you should see:
+- ✅ App starts on http://localhost:3001 (or 3000)
+- ✅ Redirect to `/chirality-core` page works
+- ✅ Can enter a problem statement
+- ✅ Document generation completes successfully
+- ✅ Can view generated documents in tabs
+- ✅ Chat references the generated documents
+- ✅ Admin dashboard shows system state
 
----
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
+Happy troubleshooting! 🔧

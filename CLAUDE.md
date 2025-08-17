@@ -1,45 +1,37 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the Chirality Chat application.
+This file provides guidance to Claude Code (claude.ai/code) when working with the **Chirality Core Chat** application.
 
 ## Project Overview
 
-Chirality Chat is a modern, **graph-free** chat interface for the Chirality Framework, providing conversational AI access to semantic document generation and knowledge management. This application has been redesigned with complete independence from GraphQL/Neo4j dependencies.
-
-## Recent Major Changes (IMPORTANT)
-
-🚨 **Critical Architecture Update**: This application now features:
-- **Graph-free Chirality Core**: Complete independence from GraphQL/Neo4j
-- **OpenAI Responses API**: Migration from Chat Completions API (NOT backwards compatible)
-- **File-based state management**: No database dependencies
-- **4-Document Workflow**: DS → SP → X → M with RAG chat integration
-- **Admin Dashboard**: Full transparency at `/chat-admin`
-- **Fixed SSE Streaming**: Robust error handling and message accumulation
+Chirality Core Chat is a streamlined chatbot interface with RAG (Retrieval-Augmented Generation) powered by the Chirality Framework's **two-pass document generation system**. This application focuses entirely on document-enhanced chat functionality with minimal dependencies.
 
 ## Architecture
 
-### Split-Apps Architecture
-- **This Repository**: Chat UI, streaming responses, **graph-free Chirality Core**
-- **[Chirality-Framework](https://github.com/sgttomas/Chirality-Framework)**: **Optional** GraphQL service (no longer required)
-
-### Key Technologies
+### Core Technologies
 - **Frontend**: Next.js 15.2.3, React 18, TypeScript
-- **Streaming**: **OpenAI Responses API** with Server-Sent Events (NOT Chat Completions)
+- **Streaming**: OpenAI Chat Completions API with Server-Sent Events
 - **State**: Zustand for UI state, **file-based storage** for documents
-- **Styling**: Tailwind CSS with accessibility-compliant components
-- **AI Model**: **gpt-4.1-nano ONLY** (never use other models)
+- **Styling**: Tailwind CSS
+- **AI Model**: **gpt-4.1-nano** (configurable via environment)
+
+### Key Features
+- **Two-Pass Document Generation**: Sequential generation followed by cross-referential refinement
+- **Document-Enhanced Chat**: Automatic context injection from generated DS/SP/X/M documents
+- **Real-time Streaming**: Server-sent events for responsive chat experience
+- **File-based State**: Simple, database-free persistence
+- **Clean Architecture**: Minimal dependencies, focused functionality
 
 ## Development Setup
 
 ### Prerequisites
 1. ✅ **OpenAI API key** (required)
-2. ❌ ~~Neo4j database~~ (optional, legacy features only)
-3. ❌ ~~Chirality-Framework GraphQL service~~ (optional, not required)
+2. ❌ **No database dependencies** (uses file-based state)
 
 ### Quick Start
 ```bash
 npm install
-npm run dev  # Starts on http://localhost:3000
+npm run dev  # Starts on http://localhost:3001 (or 3000 if available)
 ```
 
 ### Environment Configuration
@@ -49,30 +41,58 @@ Create `.env.local`:
 OPENAI_API_KEY=sk-proj-your-api-key
 OPENAI_MODEL=gpt-4.1-nano
 
-# OPTIONAL (for legacy GraphQL features)
-NEO4J_URI=neo4j+s://...
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=...
+# OPTIONAL
+DEFAULT_TEMPERATURE=0.6
+MAX_OUTPUT_TOKENS=800
 ```
 
-## Core Implementation: Graph-Free Chirality
+## Core Implementation: Two-Pass Document Generation
 
 ### Document Generation Flow
+
+**Pass 1 (Sequential Generation):**
 ```
-1. Set Problem → /chirality-core (UI) or chat command
-2. Generate DS → Data Template document
-3. Generate SP → Procedural Checklist document  
-4. Generate X → Solution Template document
-5. Generate M → Guidance document
-6. RAG Chat → Documents auto-injected into system prompt
+1. DS (Data Sheet) → generated first
+2. SP (Procedural Checklist) → using DS
+3. X (Solution Template) → using DS + SP  
+4. M (Guidance) → using DS + SP + X
 ```
 
+**Pass 2 (Cross-Referential Refinement):**
+```
+1. DS refined → using insights from SP, X, M
+2. SP refined → using new DS + original X, M
+3. X refined → using new DS, new SP + original M
+4. M refined → using new DS, new SP, new X
+```
+
+**Final Resolution:**
+```
+5. X final update → using all refined DS, SP, M
+```
+
+This creates a feedback loop where each document gets enriched by insights from all others.
+
 ### Key Files (CRITICAL)
+
+#### Document Generation
+- **`/src/app/api/core/orchestrate/route.ts`**: Two-pass document generation endpoint
+- **`/src/app/api/core/run/route.ts`**: Single document generation endpoint
+- **`/src/chirality-core/orchestrate.ts`**: Core document generation logic with 2-pass LLM calls
+- **`/src/chirality-core/validators.ts`**: Flexible document validation (handles strings and arrays)
+- **`/src/chirality-core/vendor/llm.ts`**: OpenAI API wrapper
+
+#### Chat System
 - **`/src/app/api/chat/stream/route.ts`**: Main chat endpoint with RAG document injection
-- **`/src/chirality-core/orchestrate.ts`**: Document generation with 2-pass LLM calls
-- **`/src/chirality-core/vendor/llm.ts`**: OpenAI **Responses API** wrapper (NOT Chat Completions)
-- **`/src/chirality-core/state/store.ts`**: File-based state persistence
+- **`/src/components/chat/ChatWindow.tsx`**: Main chat interface
+- **`/src/components/chat/ChatInput.tsx`**: Message input with command detection
+
+#### UI Components
+- **`/src/app/chirality-core/page.tsx`**: Main document generation UI
 - **`/src/app/chat-admin/page.tsx`**: Admin dashboard for system transparency
+
+#### State Management
+- **`/src/chirality-core/state/store.ts`**: File-based state persistence
 
 ### Document Types
 ```typescript
@@ -82,202 +102,133 @@ interface Triple<T> {
   warnings: string[];   // Generation warnings
 }
 
-// DS: Data Template
-{ data_field: string, type?: string, units?: string, source_refs?: string[] }
+// DS: Data Sheet
+{ data_field: string, type?: string, units?: string, source_refs?: string[], notes?: string[] }
 
 // SP: Procedural Checklist  
-{ step: string, purpose?: string, inputs?: string[], outputs?: string[] }
+{ step: string, purpose?: string, inputs?: string[], outputs?: string[], preconditions?: string[], postconditions?: string[], refs?: string[] }
 
 // X: Solution Template
-{ heading: string, narrative: string }
+{ heading: string, narrative: string, precedents?: string[], successors?: string[], context_notes?: string[], refs?: string[] }
 
 // M: Guidance
-{ statement: string, justification?: string, residual_risk?: string[] }
+{ statement: string, justification?: string, trace_back?: string[], assumptions?: string[], residual_risk?: string[] }
 ```
 
-## Key Components
+## API Endpoints
 
-### Chat System (`/src/components/chat/`)
-- **ChatWindow**: Main container with message accumulation
-- **ChatInput**: Command detection and streaming triggers
-- **Message**: Markdown rendering with syntax highlighting
-- **useStream hook**: **SSE connection with content accumulation** (prevents message loss)
-
-### Chirality Core (`/src/chirality-core/`)
-- **orchestrate.ts**: Two-pass document generation (draft → final)
-- **vendor/llm.ts**: **Responses API integration** (fixed JSON parsing)
-- **state/store.ts**: Atomic file operations for state persistence
-- **compactor.ts**: Document optimization for AI context injection
-
-### Admin Tools (`/src/app/chat-admin/`)
-- **Debug visibility**: Full system prompt inspection
-- **Document injection**: Real-time monitoring of RAG context
-- **Auto-refresh**: 2-second polling for live updates
-- **Test endpoints**: Validation and metrics
-
-### API Routes (`/src/app/api/`)
-- **chat/stream**: Main streaming endpoint with document injection
-- **chat/debug**: Admin dashboard data source
-- **core/state**: Document state management (GET/POST/DELETE)
-- **core/run**: Individual document generation
-
-## Critical Implementation Details
-
-### OpenAI API Usage (IMPORTANT)
+### POST /api/core/orchestrate
+**Two-pass document generation with resolution**
 ```typescript
-// ✅ CORRECT - Responses API format
-const body = {
-  model: 'gpt-4.1-nano',  // ONLY this model
-  instructions: systemPrompt,
-  input: [
-    {
-      role: 'user',
-      content: [{ type: 'input_text', text: userMessage }]
-    }
-  ],
-  temperature: 0.6,
-  stream: true
-}
-
-// ❌ WRONG - Chat Completions format (do not use)
-const wrongBody = {
-  model: 'gpt-3.5-turbo',  // Wrong model
-  messages: [/* wrong format */]
-}
+// Request: {}
+// Response: { success: true, pass1: {}, pass2: {}, logs: string[], totalTimeSeconds: number }
 ```
 
-### SSE Streaming Pattern (FIXED)
+### POST /api/core/run
+**Single document generation**
 ```typescript
-// ✅ CORRECT - Content accumulation pattern
-let accumulatedContent = ''
-
-// Parse streaming response
-const content = parsed.delta  // NOT parsed.output?.[0]?.content
-if (content && parsed.type === 'response.output_text.delta') {
-  accumulatedContent += content
-  // Send accumulated content to prevent loss
-}
-
-// Completion detection
-if (parsed.type === 'response.completed') {
-  // Stream complete
-}
+// Request: { kind: 'DS' | 'SP' | 'X' | 'M' }
+// Response: { kind: string, triple: Triple<any>, latencyMs: number }
 ```
 
-### Document State Management
+### POST /api/chat/stream
+**Stream chat responses with document context**
 ```typescript
-// Read current state
-const state = readState()  // From file system
-const { problem, finals } = state
-
-// Write new document
-writeState({
-  finals: {
-    ...state.finals,
-    DS: generatedTriple
-  }
-})
-
-// Clear all documents
-fetch('/api/core/state', { method: 'DELETE' })
+// Request: { message: string, conversationId?: string }
+// Response: Server-Sent Events stream
 ```
 
-## Common Tasks
+### GET/POST/DELETE /api/core/state
+**Document state management**
+```typescript
+// GET: Returns current state
+// POST: { problem?: {}, finals?: {} }
+// DELETE: Clears all state
+```
+
+## Chat System with RAG
+
+### Document Injection Pattern
+The chat system automatically injects generated documents into the system context:
+
+```typescript
+const instructions = [
+  'You are the Chirality Chat engine.',
+  'Use pinned DS/SP/X/M as ground truth context for this session.',
+  'Prefer cited evidence; include citation IDs when relevant.',
+  ''
+]
+
+if (DS || SP || X || M) {
+  instructions.push('--- Pinned Finals (compact) ---')
+  if (DS) instructions.push(`DS: ${compactDS(DS.text)}`)
+  if (SP) instructions.push(`SP: ${compactSP(SP.text)}`)
+  if (X) instructions.push(`X: ${compactX(X.text)}`)
+  if (M) instructions.push(`M: ${compactM(M.text)}`)
+  instructions.push('--- End Pinned ---')
+}
+```
+
+### Command Detection
+The chat system recognizes these commands:
+- `set problem: [description]` - Define the problem context
+- `generate DS/SP/X/M` - Generate specific documents
+
+## Common Development Tasks
 
 ### Adding New Document Types
 1. Add interface to `/src/chirality-core/contracts.ts`
 2. Extend `runDoc` function in `/src/chirality-core/orchestrate.ts`
-3. Add compactor function in `/src/chirality-core/compactor.ts`
-4. Update UI components to handle new type
+3. Add validator in `/src/chirality-core/validators.ts`
+4. Add compactor function in `/src/chirality-core/compactor.ts`
+5. Update UI components to handle new type
+
+### Modifying Document Generation
+- **Two-pass logic**: Edit `/src/app/api/core/orchestrate/route.ts`
+- **Single document**: Edit `/src/app/api/core/run/route.ts`
+- **Validation**: Update `/src/chirality-core/validators.ts`
+- **LLM prompts**: Modify `/src/chirality-core/systemPrompt.ts` and `/src/chirality-core/userPrompt.ts`
 
 ### Modifying Chat Behavior
-- **Document injection**: Edit `/src/app/api/chat/stream/route.ts` (lines 246-268)
+- **Document injection**: Edit `/src/app/api/chat/stream/route.ts` (lines around 246-268)
 - **Command detection**: Update `detectChiralityCommand` function
-- **Streaming logic**: Modify SSE transform stream (lines 305-339)
-
-### Working with Documents
-- **Generation**: Use `runDoc(kind, problem, finals)` function
-- **State access**: Use `readState()` and `writeState()` 
-- **Compaction**: Use `compactDS/SP/X/M()` for AI context
-- **Validation**: Triple format automatically validated
-
-## Debugging Tools
-
-### Admin Dashboard (`/chat-admin`)
-- **Document Status**: Real-time view of generated documents
-- **System Instructions**: Full prompt sent to OpenAI
-- **Compacted View**: Optimized document content
-- **Raw Data**: Complete document structures
-- **Auto-refresh**: Live monitoring
-
-### Debug Endpoints
-```bash
-# System status
-curl http://localhost:3000/api/chat/debug
-
-# Test document injection
-curl -X POST http://localhost:3000/api/chat/test \
-  -H "Content-Type: application/json" \
-  -d '{"testMessage": "What documents are available?"}'
-
-# Check current state
-curl http://localhost:3000/api/core/state
-```
-
-### Common Issues & Solutions
-
-#### "SSE error: {}"
-- Check OpenAI API key validity
-- Verify model access to `gpt-4.1-nano`
-- Check network connectivity
-
-#### Document Generation Fails
-- Ensure problem is set first: `"set problem: [description]"`
-- Check OpenAI API credits
-- View errors in admin dashboard
-
-#### Empty Document Fields
-- Fixed in current version with JSON unwrapping
-- Documents may have extra wrapper layers that are automatically handled
-
-#### Model Errors
-- **ONLY use `gpt-4.1-nano`** - other models will fail
-- Verify model access in OpenAI dashboard
-
-## Performance Considerations
-
-### Document Generation
-- **Two-pass generation**: Draft (temp=0.7) → Final (temp=0.5)
-- **Content accumulation**: Prevents streaming message loss  
-- **Atomic file operations**: State consistency guaranteed
-- **JSON parsing**: Robust handling of malformed LLM responses
-
-### UI Optimizations
-- **React.memo**: Expensive component memoization
-- **Virtual scrolling**: Long chat history handling
-- **Canvas caching**: Matrix rendering optimization
-- **Debounced inputs**: Search and form optimization
+- **Streaming logic**: Modify SSE transform stream
 
 ## Testing Strategy
 
 ### Manual Testing Workflow
 1. Navigate to `/chirality-core`
-2. Set test problem
-3. Generate DS → SP → X → M in sequence
-4. Test chat with documents injected at `/`
-5. Monitor system at `/chat-admin`
-6. Clear state and repeat
+2. Enter a test problem (e.g., "how to weld carbon steel pipe to stainless steel pipe")
+3. Choose "Single Pass" or "🔄 Two-Pass with Resolution"
+4. Observe document generation in logs
+5. Test chat with documents injected at `/`
+6. Monitor system at `/chat-admin`
+7. Clear state and repeat with different problems
 
-### Automated Testing
+### Debug Endpoints
 ```bash
-# Component tests
-npm test
+# System status
+curl http://localhost:3001/api/chat/debug
 
-# API endpoint tests
-curl -X POST http://localhost:3000/api/core/run \
-  -H "Content-Type: application/json" \
-  -d '{"kind": "DS", "problem": "Test problem"}'
+# Check current state
+curl http://localhost:3001/api/core/state
+
+# Clear state
+curl -X DELETE http://localhost:3001/api/core/state
 ```
+
+## Performance Considerations
+
+### Document Generation
+- **Two-pass generation**: 8 total LLM calls (4 initial + 4 refinement + 1 resolution)
+- **Single-pass generation**: 4 LLM calls
+- **Content validation**: Flexible validators handle both string and array formats
+- **Atomic file operations**: State consistency guaranteed
+
+### Error Handling
+- **Graceful degradation**: Continues generation even if individual documents fail
+- **Flexible validation**: Automatically converts strings to arrays where needed
+- **Comprehensive logging**: Detailed progress tracking in UI
 
 ## Code Style & Conventions
 
@@ -285,29 +236,23 @@ curl -X POST http://localhost:3000/api/core/run \
 - **Strict mode**: All files use strict typing
 - **Interfaces**: Define all data structures
 - **Named exports**: Prefer over default exports
-- **Barrel imports**: Use index.ts files
 
 ### Component Guidelines
 - **'use client'**: For client-side components
 - **Error boundaries**: Wrap major component trees
 - **Loading states**: Handle async operations
-- **Accessibility**: WCAG 2.1 AA compliance
 
 ### API Route Patterns
 - **Error handling**: Proper HTTP status codes
 - **TypeScript**: Request/response type safety
 - **Streaming**: Use TransformStream for SSE
-- **Validation**: Server-side input validation
 
 ## Deployment Considerations
 
 ### Production Environment
 ```env
-# Required
 OPENAI_API_KEY=sk-proj-production-key
 OPENAI_MODEL=gpt-4.1-nano
-
-# Optional
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 ```
@@ -318,89 +263,27 @@ npm run build  # Production optimization
 npm start      # Production server
 ```
 
-## Integration Points
-
-### With OpenAI
-- **Responses API**: Streaming document generation
-- **Model**: Exclusively `gpt-4.1-nano`
-- **System prompts**: Dynamic document injection
-- **Error handling**: Robust retry mechanisms
-
-### With File System
-- **State storage**: Temporary directory JSON files
-- **Atomic operations**: Race condition prevention
-- **Cleanup**: Automatic state management
-
-### Legacy GraphQL (Optional)
-- **Matrix visualization**: Neo4j data (if available)
-- **Backwards compatibility**: Graceful degradation
-- **Optional dependency**: App works without it
-
-## Chirality Boundary Implementation
-
-### Constructive Operations (No LLM)
-The Chirality Framework maintains strict boundaries between operations that require human cognition versus LLM assistance:
-
-**Human-Only (Constructive):**
-- Framework structure design (12-station semantic valley)
-- Semantic operation definitions (`*`, `+`, `×`, `⊙`)
-- Matrix architecture (A, B, C, D, E, F, G, H, J, K, L, M, N, P, Q, R, S, U, W, X, Z)
-- Document type specifications (DS, SP, X, M)
-- System architecture decisions
-- API contracts and interfaces
-
-**LLM-Assisted (Generative):**
-- Semantic interpolation of word pairings into coherent concepts
-- Content generation within predefined document structures
-- Natural language processing for chat interactions
-- Problem statement analysis and context extraction
-
-### Role Clarity
-- **Framework**: Meta-ontological methodology designed by humans
-- **LLM**: Semantic interpolation engine that resolves abstract terms within framework constraints
-- **Boundary Enforcement**: Never allow LLM to modify framework structure, only populate semantic content
-
 ## Best Practices
 
 ### Do's ✅
-- Use **OpenAI Responses API** format consistently
-- Accumulate content in SSE streams to prevent loss
+- Use **two-pass generation** for complex problems requiring document coherence
+- Test both single-pass and two-pass modes
 - Always set problem before generating documents
 - Use admin dashboard for debugging and transparency
-- Handle malformed JSON responses gracefully
-- Follow file-based state management patterns
-- **Maintain Chirality Boundary**: LLM provides semantic interpolation, not architectural decisions
+- Handle validation errors gracefully
 
 ### Don'ts ❌
-- Don't use Chat Completions API (deprecated in this app)
-- Don't use models other than `gpt-4.1-nano`
+- Don't assume specific test framework - check codebase first
 - Don't bypass document validation
 - Don't expose API keys in client code
-- Don't assume GraphQL/Neo4j availability
 - Don't ignore SSE error states
-- **Don't allow LLM to modify framework structure** - only semantic content within predefined templates
-
-## Migration Notes
-
-### From GraphQL Version
-- State management: File-based instead of database
-- Document generation: Direct LLM calls instead of GraphQL
-- Dependencies: Removed Neo4j requirements
-- API format: Responses API instead of Chat Completions
-
-### From Chat Completions API
-- Request format: `instructions` + `input` instead of `messages`
-- Response parsing: `delta` field instead of `choices[0].delta`
-- Model requirements: `gpt-4.1-nano` only
-- Streaming events: Different event types
 
 ## Resources
 
 - [Repository](https://github.com/sgttomas/Chirality-chat)
-- [Framework Repository](https://github.com/sgttomas/Chirality-Framework) (optional)
-- [OpenAI Responses API](https://platform.openai.com/docs/api-reference/responses)
+- [OpenAI API Documentation](https://platform.openai.com/docs/api-reference/chat)
 - [Next.js App Router](https://nextjs.org/docs/app)
 
 ---
 
-🤖 **For Claude Code**: This codebase implements a complete graph-free Chirality Framework with robust document generation, RAG chat integration, and comprehensive admin tools. Focus on the file-based state management and OpenAI Responses API patterns when making modifications.
+🤖 **For Claude Code**: This codebase implements a streamlined Chirality Framework with innovative two-pass document generation, creating coherent cross-referenced documents through iterative refinement. Focus on the two-pass orchestration system and document injection patterns when making modifications.
