@@ -25,7 +25,7 @@ Essential files for understanding, using, and contributing to the Chirality AI A
 ## 🚀 Getting Started
 
 ### For Users
-- **[README.md](README.md)** - Project overview and basic setup | 🆕 **UPDATED** (Aug 17 - Phase 2)
+- **[README.md](README.md)** - Project overview and basic setup | 🆕 **UPDATED** (Aug 17 - CF14 integration)
 - **[GETTING_STARTED.md](GETTING_STARTED.md)** - Detailed setup and first steps | 🔄 **NEEDS_UPDATE** (Phase 1)
 - **[ONBOARDING.md](ONBOARDING.md)** - Complete user onboarding experience | 🔄 **NEEDS_UPDATE** (Phase 1)
 - **[HELP.md](HELP.md)** - Common questions and troubleshooting | 🔄 **NEEDS_UPDATE** (Phase 1)
@@ -70,6 +70,15 @@ Essential files for understanding, using, and contributing to the Chirality AI A
 - **[src/app/api/](src/app/api/)** - Next.js API routes
 - **[src/app/api/chat/stream/route.ts](src/app/api/chat/stream/route.ts)** - Streaming chat endpoint
 - **[src/app/api/core/orchestrate/route.ts](src/app/api/core/orchestrate/route.ts)** - CF14 orchestration endpoint
+- **[src/app/api/v1/graph/graphql/route.ts](src/app/api/v1/graph/graphql/route.ts)** - CF14 GraphQL API with semantic matrix queries | 🆕 **UPDATED** (Aug 17 - CF14 types)
+
+### CF14 Integration Layer
+- **[src/app/chirality-graph/page.tsx](src/app/chirality-graph/page.tsx)** - CF14-enhanced document generation UI | ✅ **CURRENT** (Created Aug 17)
+- **[scripts/link-cf-to-components.ts](scripts/link-cf-to-components.ts)** - CF14 semantic alignment linker | ✅ **CURRENT** (Created Aug 17)
+- **[scripts/cf14-indexes.cypher](scripts/cf14-indexes.cypher)** - Neo4j constraints for CF14 data | ✅ **CURRENT** (Created Aug 17)
+- **[scripts/bootstrap-cf14-to-neo4j.sh](scripts/bootstrap-cf14-to-neo4j.sh)** - CF14 integration setup script | ✅ **CURRENT** (Created Aug 17)
+- **[types/graphql-depth-limit.d.ts](types/graphql-depth-limit.d.ts)** - TypeScript declarations for GraphQL validation | ✅ **CURRENT** (Created Aug 17)
+- **[types/graphql-validation-complexity.d.ts](types/graphql-validation-complexity.d.ts)** - TypeScript declarations for complexity validation | ✅ **CURRENT** (Created Aug 17)
 
 ### Configuration
 - **[package.json](package.json)** - Node.js dependencies and scripts
@@ -106,7 +115,7 @@ Essential files for understanding, using, and contributing to the Chirality AI A
 - **[AGENTS.md](AGENTS.md)** - AI agent workflows for automated documentation maintenance | 📋 **PLANNED** (Create)
 
 ### For AI Integration
-- **[CLAUDE.md](CLAUDE.md)** - LLM role guidance and collaboration patterns | 🔄 **NEEDS_UPDATE** (Phase 1)
+- **[CLAUDE.md](CLAUDE.md)** - LLM role guidance and collaboration patterns | 🆕 **UPDATED** (Aug 17 - CF14 integration)
 - **[PROJECT_DIRECTORY.md](PROJECT_DIRECTORY.md)** - Machine-readable project structure | 📋 **PLANNED** (Create)
 
 ## 🧪 Testing & Scripts

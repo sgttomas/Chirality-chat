@@ -12,15 +12,18 @@ Chirality Core Chat is a streamlined chatbot interface with RAG (Retrieval-Augme
 - **Frontend**: Next.js 15.2.3, React 18, TypeScript
 - **Streaming**: OpenAI Chat Completions API with Server-Sent Events
 - **State**: Zustand for UI state, **file-based storage** for documents
+- **CF14 Integration**: Neo4j graph database with GraphQL API for semantic matrix storage
 - **Styling**: Tailwind CSS
 - **AI Model**: **gpt-4.1-nano** (configurable via environment)
 
 ### Key Features
 - **Two-Pass Document Generation**: Sequential generation followed by cross-referential refinement
+- **CF14 Semantic Enhancement**: CF14 matrix context injection for semantically-informed generation
+- **Dual UI Architecture**: Standard `/chirality-core` and enhanced `/chirality-graph` interfaces
 - **Document-Enhanced Chat**: Automatic context injection from generated DS/SP/X/M documents
 - **Real-time Streaming**: Server-sent events for responsive chat experience
 - **File-based State**: Simple, database-free persistence
-- **Clean Architecture**: Minimal dependencies, focused functionality
+- **Graph Integration**: Neo4j storage and GraphQL querying of CF14 semantic matrices
 
 ## Development Setup
 
@@ -40,6 +43,14 @@ Create `.env.local`:
 # REQUIRED
 OPENAI_API_KEY=sk-proj-your-api-key
 OPENAI_MODEL=gpt-4.1-nano
+
+# CF14 GRAPH INTEGRATION (OPTIONAL)
+FEATURE_GRAPH_ENABLED=true
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=testpass
+GRAPHQL_BEARER_TOKEN=dev-super-secret
+GRAPHQL_CORS_ORIGINS=http://localhost:3000
 
 # OPTIONAL
 DEFAULT_TEMPERATURE=0.6
@@ -194,9 +205,17 @@ The chat system recognizes these commands:
 - **Command detection**: Update `detectChiralityCommand` function
 - **Streaming logic**: Modify SSE transform stream
 
+### Modifying CF14 Integration
+- **GraphQL Schema**: Add new CF14 types in `/src/app/api/v1/graph/graphql/route.ts`
+- **Graph Enhancement**: Modify CF14 context loading in `/src/app/chirality-graph/page.tsx`
+- **Neo4j Queries**: Update CF14 queries in GraphQL resolvers
+- **Security Validation**: Adjust depth/complexity limits in GraphQL route
+
 ## Testing Strategy
 
 ### Manual Testing Workflow
+
+#### Standard Document Generation
 1. Navigate to `/chirality-core`
 2. Enter a test problem (e.g., "how to weld carbon steel pipe to stainless steel pipe")
 3. Choose "Single Pass" or "🔄 Two-Pass with Resolution"
@@ -204,6 +223,15 @@ The chat system recognizes these commands:
 5. Test chat with documents injected at `/`
 6. Monitor system at `/chat-admin`
 7. Clear state and repeat with different problems
+
+#### CF14-Enhanced Document Generation
+1. Navigate to `/chirality-graph`
+2. Verify CF14 context is loaded (matrices and semantic nodes displayed)
+3. Enter same test problem to compare enhanced generation
+4. Choose "📊 Single Pass + CF14 Context" or "🔄 Two-Pass + CF14 Enhancement"
+5. Observe how CF14 semantic context influences document quality
+6. Compare generated documents with standard `/chirality-core` results
+7. Test export functionality to verify CF14 metadata inclusion
 
 ### Debug Endpoints
 ```bash
@@ -215,6 +243,16 @@ curl http://localhost:3001/api/core/state
 
 # Clear state
 curl -X DELETE http://localhost:3001/api/core/state
+
+# CF14 Graph Health
+npm run graph:health
+
+# Sample CF14 GraphQL Query
+npm run graph:query:sample
+
+# CF14 Graph Scripts
+npm run init:graph:constraints  # Initialize Neo4j constraints
+npm run link:cf14              # Link CF14 nodes to components
 ```
 
 ## Performance Considerations

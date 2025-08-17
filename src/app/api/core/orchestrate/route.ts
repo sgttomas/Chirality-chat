@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { runDoc } from '@/chirality-core/orchestrate';
 import { readState, writeState } from '@/chirality-core/state/store';
 import { DocKind, Triple } from '@/chirality-core/contracts';
+import { mirrorAfterWrite } from '@/lib/graph/integration';
 
 export async function POST(request: NextRequest) {
   try {
@@ -147,6 +148,9 @@ export async function POST(request: NextRequest) {
         resolutionStep: true
       }
     });
+
+    // Mirror to graph after successful file write (non-blocking)
+    mirrorAfterWrite(pass2);
 
     const totalTime = (
       (Date.now() - t0_ds) / 1000

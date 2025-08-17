@@ -6,7 +6,7 @@ Next.js chat interface with document generation capabilities powered by the Chir
 
 - **Two-Pass Document Generation**: Creates coherent DS/SP/X/M documents through sequential generation and cross-referential refinement
 - **RAG-Enhanced Chat**: Chat interface with automatic context injection from generated documents
-- **Graph-Enhanced Discovery**: Optional Neo4j integration for document relationship analysis and component search
+- **CF14 Semantic Enhancement**: Neo4j integration with CF14 semantic matrix context for enhanced document generation
 - **Real-time Streaming**: Server-sent events for responsive interactions
 - **File-based Persistence**: Simple state management without database dependencies
 - **Clean Architecture**: Focused implementation with minimal dependencies
