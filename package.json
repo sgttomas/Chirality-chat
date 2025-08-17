@@ -50,12 +50,20 @@
     "analyze": "ANALYZE=true npm run build",
     "clean": "rm -rf .next && rm -rf node_modules && npm install",
     "fresh": "npm run clean && npm run dev",
-    "setup": "npm install && echo 'Add OPENAI_API_KEY to .env.local and run: npm run dev'"
+    "setup": "npm install && echo 'Add OPENAI_API_KEY to .env.local and run: npm run dev'",
+    "init:graph:env": "tsx scripts/validate-graph-env.ts",
+    "init:graph:constraints": "tsx scripts/init-graph-constraints.ts || echo \"Constraints failed—run manually in Neo4j Browser\"",
+    "backfill:graph": "tsx scripts/backfill-graph-from-files.ts",
+    "link:cf14": "tsx scripts/link-cf-to-components.ts",
+    "graph:health": "curl -s http://localhost:3001/api/v1/graph/health | jq .",
+    "graph:query:sample": "node -e \"fetch('http://localhost:3001/api/v1/graph/graphql',{method:'POST',headers:{'Authorization':'Bearer '+(process.env.GRAPHQL_BEARER_TOKEN||'dev-super-secret'),'Content-Type':'application/json'},body:JSON.stringify({query:'{ documents { id title components(limit:5){ title score } } }'})}).then(r=>r.text()).then(console.log)\""
   },
   "dependencies": {
     "@neo4j/graphql": "^7.2.8",
     "critters": "^0.0.23",
     "graphql": "^16.11.0",
+    "graphql-depth-limit": "^1.1.0",
+    "graphql-validation-complexity": "^0.4.2",
     "gray-matter": "^4.0.3",
     "neo4j-driver": "^5.28.1",
     "next": "15.2.3",
