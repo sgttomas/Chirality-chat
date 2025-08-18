@@ -9,13 +9,19 @@
 
 require('dotenv').config({ path: '.env.local' });
 
+// Check if running in CI environment
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
 // Environment configuration requirements
 const ENV_CONFIG = {
   required: {
     OPENAI_API_KEY: {
       description: 'OpenAI API key for LLM calls',
       validation: (value) => {
-        if (!value) return 'Missing required OpenAI API key';
+        if (!value) {
+          if (isCI) return null; // Allow missing in CI
+          return 'Missing required OpenAI API key';
+        }
         if (!value.startsWith('sk-')) return 'OpenAI API key should start with sk-';
         if (value.length < 20) return 'OpenAI API key appears to be too short';
         return null;
@@ -156,6 +162,9 @@ function validateEnvironment() {
   console.log('📋 System Information:');
   console.log(`   Node.js: ${systemInfo.nodeVersion}`);
   console.log(`   npm: ${systemInfo.npmVersion}`);
+  if (isCI) {
+    console.log('   🤖 Running in CI environment');
+  }
   
   // Check if we meet minimum requirements
   const nodeVersionNumber = parseFloat(systemInfo.nodeVersion.slice(1));
@@ -189,8 +198,13 @@ function validateEnvironment() {
       console.log(`   ❌ ${name}: ${result.message}`);
       hasErrors = true;
     } else {
-      console.log(`   ❌ ${name}: missing (${config.description})`);
-      hasErrors = true;
+      if (isCI) {
+        console.log(`   ⚠️  ${name}: missing in CI (${config.description})`);
+        hasWarnings = true;
+      } else {
+        console.log(`   ❌ ${name}: missing (${config.description})`);
+        hasErrors = true;
+      }
     }
   }
   console.log();
