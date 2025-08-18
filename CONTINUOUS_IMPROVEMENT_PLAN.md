@@ -6,6 +6,14 @@
 
 This document establishes the ongoing process for keeping Chirality AI App documentation accurate, useful, and aligned with project evolution. It operates in parallel with the KEY_PROJECT_FILES.md tracking system to ensure all critical documentation meets current standards.
 
+### Relationship to CONSOLIDATED_IMPROVEMENT_PLAN
+
+This CONTINUOUS_IMPROVEMENT_PLAN serves as the **ongoing process framework**, while CONSOLIDATED_IMPROVEMENT_PLAN.md provides **specific implementation roadmaps**:
+
+- **CONTINUOUS_IMPROVEMENT_PLAN.md** (this document): Persistent process, methodologies, and triggers
+- **CONSOLIDATED_IMPROVEMENT_PLAN.md** (generated): Time-bound implementation plan with specific tasks
+- **Transformation Cycle**: When triggered, this plan generates a CONSOLIDATED plan → execution → lessons learned → update this CONTINUOUS plan
+
 ## Status Tracking System
 
 ### Status Categories
@@ -101,6 +109,12 @@ This document establishes the ongoing process for keeping Chirality AI App docum
 - CONTINUOUS_IMPROVEMENT_PLAN.md
 - COMMIT_HOOKS.md
 - AGENTS.md
+- CLAUDE_ONBOARDING_GUIDE.md (in `/Users/ryan/Desktop/ai-env/`)
+
+**Knowledge Transfer Pipeline**: 
+- Located in `/Users/ryan/Desktop/ai-env/chirality-ai-app/lib/chirality-semantic-framework/`
+- Contains companion documentation for understanding architectural patterns
+- CLAUDE.md in that directory explains the system architecture
 
 **Improvement Triggers**:
 - New documents added to project
@@ -336,19 +350,28 @@ The documentation improvement process follows systematic semantic operations, de
 
 **When the next git commit triggers a documentation overhaul following systematic methodologies:**
 
-1. **Extract Commit Context**: Use the git commit message explaining the reason and scope of changes as input for methodology selection
+1. **Claude Onboarding**: Future Claude instances should:
+   - Read CLAUDE_ONBOARDING_GUIDE.md in `/Users/ryan/Desktop/ai-env/`
+   - Follow the exact reading sequence specified (16 docs in knowledge transfer pipeline)
+   - Read companion files in project root
+   - Check for CONSOLIDATED_IMPROVEMENT_PLAN.md from previous cycle
 
-2. **Plan Transformation**: Convert this CONTINUOUS_IMPROVEMENT_PLAN into a new CONSOLIDATED_IMPROVEMENT_PLAN that:
+2. **Extract Commit Context**: Use the git commit message explaining the reason and scope of changes as input for methodology selection
+
+3. **Plan Transformation**: Convert this CONTINUOUS_IMPROVEMENT_PLAN into a new CONSOLIDATED_IMPROVEMENT_PLAN that:
    - Incorporates the commit rationale as Matrix A (current state/problem)
    - Defines the appropriate improvement methodology as Matrix B  
    - Generates specific improvement requirements through systematic analysis
    - Establishes phased implementation approach with clear success criteria
 
-3. **Execute Review Cycle**: Apply the new CONSOLIDATED_IMPROVEMENT_PLAN to systematically review and update all KEY_PROJECT_FILES according to the defined methodology
+4. **Execute Review Cycle**: Apply the new CONSOLIDATED_IMPROVEMENT_PLAN to systematically review and update all KEY_PROJECT_FILES according to the defined methodology
 
-4. **Status Tracking**: Update continuous improvement status throughout the process, maintaining the audit trail of systematic transformation
+5. **Status Tracking**: Update continuous improvement status throughout the process, maintaining the audit trail of systematic transformation
 
-5. **Documentation Evolution**: Capture lessons learned and methodology refinements back into the CONTINUOUS_IMPROVEMENT_PLAN for future cycles
+6. **Cycle Completion**: At end of cycle:
+   - Rename CONSOLIDATED_IMPROVEMENT_PLAN.md → CONTINUOUS_IMPROVEMENT_PLAN.md
+   - Capture lessons learned and methodology refinements
+   - Update CLAUDE_ONBOARDING_GUIDE.md if process changes
 
 **This creates a self-improving documentation system that uses systematic methodology to enhance itself through each major evolution cycle.**
 
