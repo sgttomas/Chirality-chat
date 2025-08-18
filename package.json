@@ -61,6 +61,7 @@
   "dependencies": {
     "@neo4j/graphql": "^7.2.8",
     "critters": "^0.0.23",
+    "dotenv": "^17.2.1",
     "graphql": "^16.11.0",
     "graphql-depth-limit": "^1.1.0",
     "graphql-validation-complexity": "^0.4.2",
