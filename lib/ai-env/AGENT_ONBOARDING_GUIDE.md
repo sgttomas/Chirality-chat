@@ -9,8 +9,8 @@ You're working with a dual-project system. First, determine which project needs 
 - **chirality-semantic-framework**: Python CF14 semantic operations
 
 Then use the appropriate setup guide:
-- **For app work**: Read CLAUDE_APP_SETUP_GUIDE.md (in this directory)
-- **For framework work**: Read CLAUDE_FRAMEWORK_SETUP_GUIDE.md (in this directory)
+- **For app work**: Read AGENT_APP_SETUP_GUIDE.md (in this directory)
+- **For framework work**: Read AGENT_FRAMEWORK_SETUP_GUIDE.md (in this directory)
 - **For new Claude instances**: Continue reading this guide
 
 ## The System Overview
@@ -25,9 +25,9 @@ Then use the appropriate setup guide:
 ```
 
 **Key Guides in This Directory:**
-- **CLAUDE_ONBOARDING_GUIDE.md** (this file) - Start here
-- **CLAUDE_APP_SETUP_GUIDE.md** - For app documentation work
-- **CLAUDE_FRAMEWORK_SETUP_GUIDE.md** - For framework documentation work
+- **AGENT_ONBOARDING_GUIDE.md** (this file) - Start here
+- **AGENT_APP_SETUP_GUIDE.md** - For app documentation work
+- **AGENT_FRAMEWORK_SETUP_GUIDE.md** - For framework documentation work
 
 ## Step 1: Determine Your Task
 
@@ -44,14 +44,14 @@ If in `/chirality-semantic-framework/`: You're doing framework documentation
 ### For App Work
 Read these in `/chirality-ai-app/lib/chirality-semantic-framework/`:
 1. **KNOWLEDGE_TRANSFER_MANIFEST.md** - The canonical list (29 files)
-2. **CLAUDE.md** - Your role for this mirror
+2. **AGENT.md** - Your role for this mirror
 3. **README.md** through **VERSION.md** - All framework docs
 4. Review the Python examples and config files
 
 ### For Framework Work  
 Read these in `/chirality-semantic-framework/lib/chirality-ai-app/`:
 1. **KNOWLEDGE_TRANSFER_MANIFEST.md** - The canonical list (27 files)
-2. **CLAUDE.md** - Your role for this mirror
+2. **AGENT.md** - Your role for this mirror
 3. **README.md** through **VERSION.md** - All app docs
 4. Review the TypeScript configs and package files
 
@@ -67,7 +67,7 @@ Key files to understand:
 Key files to check/create:
 - **CONTINUOUS_IMPROVEMENT_PLAN.md** - Create if missing
 - **KEY_PROJECT_FILES.md** - Create if missing
-- **CLAUDE.md** - Update existing one
+- **AGENT.md** - Update existing one
 
 ## Step 4: Understand the Improvement Cycle
 
@@ -109,10 +109,10 @@ Even if working on one project, check the other:
 ## Common Tasks Reference
 
 ### Setting Up Framework Documentation System
-→ Read CLAUDE_FRAMEWORK_SETUP_GUIDE.md
+→ Read AGENT_FRAMEWORK_SETUP_GUIDE.md
 
 ### Maintaining App Documentation
-→ Read CLAUDE_APP_SETUP_GUIDE.md
+→ Read AGENT_APP_SETUP_GUIDE.md
 
 ### Creating New Release
 1. Update VERSION.md
@@ -123,28 +123,28 @@ Even if working on one project, check the other:
 ### Updating Mirrors
 1. Check KNOWLEDGE_TRANSFER_MANIFEST.md in both mirrors
 2. Sync changed files
-3. Update CLAUDE.md if needed
+3. Update AGENT.md if needed
 4. Test integration points
 
 ## File Location Quick Reference
 
 ```
 /Users/ryan/Desktop/ai-env/
-├── CLAUDE_ONBOARDING_GUIDE.md (this file)
-├── CLAUDE_APP_SETUP_GUIDE.md
-├── CLAUDE_FRAMEWORK_SETUP_GUIDE.md
+├── AGENT_ONBOARDING_GUIDE.md (this file)
+├── AGENT_APP_SETUP_GUIDE.md
+├── AGENT_FRAMEWORK_SETUP_GUIDE.md
 ├── chirality-ai-app/
 │   ├── CONTINUOUS_IMPROVEMENT_PLAN.md
 │   ├── KEY_PROJECT_FILES.md
 │   └── lib/chirality-semantic-framework/ (29 files)
 │       ├── KNOWLEDGE_TRANSFER_MANIFEST.md
-│       └── CLAUDE.md
+│       └── AGENT.md
 └── chirality-semantic-framework/
     ├── CONTINUOUS_IMPROVEMENT_PLAN.md (create if missing)
     ├── KEY_PROJECT_FILES.md (create if missing)
     └── lib/chirality-ai-app/ (27 files)
         ├── KNOWLEDGE_TRANSFER_MANIFEST.md
-        └── CLAUDE.md
+        └── AGENT.md
 ```
 
 ## Next Steps

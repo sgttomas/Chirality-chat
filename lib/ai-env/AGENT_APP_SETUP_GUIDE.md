@@ -25,15 +25,15 @@ cd /Users/ryan/Desktop/ai-env/chirality-ai-app/
 1. **CONTINUOUS_IMPROVEMENT_PLAN.md** - The ongoing process framework
 2. **CONSOLIDATED_IMPROVEMENT_PLAN.md** - May exist from previous cycle
 3. **KEY_PROJECT_FILES.md** - Tracking document for all documentation
-4. **CLAUDE.md** - AI collaboration guide (in project root)
-5. **CLAUDE_ONBOARDING_GUIDE.md** - In parent directory `/Users/ryan/Desktop/ai-env/`
+4. **AGENT.md** - AI collaboration guide (in project root)
+5. **AGENT_ONBOARDING_GUIDE.md** - In parent directory `/Users/ryan/Desktop/ai-env/`
 
 ### Knowledge Transfer Pipeline
 Located in `/chirality-ai-app/lib/chirality-semantic-framework/` containing:
 1. 4_DOCUMENTS_ANALYSIS.md
 2. API.md
 3. CHANGELOG.md
-4. CLAUDE.md
+4. AGENT.md
 5. COMMIT_HOOKS.md
 6. CONTINUOUS_IMPROVEMENT_PLAN.md
 7. CONTRIBUTING.md
@@ -99,7 +99,7 @@ Look for these signs that updates are needed:
 
 2. **Synchronize Mirror Documentation**
    - Check if `/lib/chirality-semantic-framework/` needs updates
-   - Particularly CLAUDE.md in that directory
+   - Particularly AGENT.md in that directory
    - Ensure version numbers match current framework release
 
 3. **Update Integration Documentation**
@@ -137,7 +137,7 @@ That directory should contain these 27 files:
 1. API.md
 2. ARCHITECTURE.md
 3. CHANGELOG.md
-4. CLAUDE.md
+4. AGENT.md
 5. COMMIT_HOOKS.md
 6. CONTINUOUS_IMPROVEMENT_PLAN.md
 7. CONTRIBUTING.md
@@ -167,7 +167,7 @@ That directory should contain these 27 files:
 ## Step 7: Implementation Checklist
 
 ### Before Starting
-- [ ] Read CLAUDE_ONBOARDING_GUIDE.md
+- [ ] Read AGENT_ONBOARDING_GUIDE.md
 - [ ] Review current CONTINUOUS_IMPROVEMENT_PLAN.md
 - [ ] Check for existing CONSOLIDATED_IMPROVEMENT_PLAN.md
 - [ ] Review KEY_PROJECT_FILES.md current statuses
@@ -182,7 +182,7 @@ That directory should contain these 27 files:
 ### After Completion
 - [ ] Update KEY_PROJECT_FILES.md final statuses
 - [ ] If cycle complete, handle plan transformation
-- [ ] Update CLAUDE_ONBOARDING_GUIDE.md if process changed
+- [ ] Update AGENT_ONBOARDING_GUIDE.md if process changed
 - [ ] Consider framework mirror updates
 - [ ] Document lessons learned
 
@@ -213,9 +213,9 @@ That directory should contain these 27 files:
 
 ```
 /Users/ryan/Desktop/ai-env/
-├── CLAUDE_ONBOARDING_GUIDE.md (app onboarding)
-├── CLAUDE_APP_SETUP_GUIDE.md (this file)
-├── CLAUDE_FRAMEWORK_SETUP_GUIDE.md (framework setup)
+├── AGENT_ONBOARDING_GUIDE.md (app onboarding)
+├── AGENT_APP_SETUP_GUIDE.md (this file)
+├── AGENT_FRAMEWORK_SETUP_GUIDE.md (framework setup)
 └── chirality-ai-app/
     ├── CONTINUOUS_IMPROVEMENT_PLAN.md ✓
     ├── KEY_PROJECT_FILES.md ✓

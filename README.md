@@ -229,3 +229,8 @@ MIT
 ---
 
 **For complete documentation see [KEY_PROJECT_FILES.md](KEY_PROJECT_FILES.md)**
+## Correspondence
+
+- Consumes and contributes to: `projects/prompts/`
+- Mirror for rapid iteration: `projects/ai-env/prompts/`
+- Role: Interaction and prompting. The app proves prompt ergonomics in chat/RAG/doc generation and upstreams composable templates.

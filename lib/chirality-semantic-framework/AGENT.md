@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENT.md
 *AI Collaboration Guide for Chirality Framework*
 
 ## What This Directory Contains

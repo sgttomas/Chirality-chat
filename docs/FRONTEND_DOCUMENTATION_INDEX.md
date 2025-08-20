@@ -2,7 +2,7 @@
 
 Complete reference for frontend development in the Chirality Chat application. This index provides organized access to all frontend documentation, following industry standards and best practices.
 
-*Last updated: 2025-08-18 (automatically generated)*
+*Last updated: 2025-08-20 (automatically generated)*
 
 ## 📋 Documentation Overview
 
@@ -91,4 +91,4 @@ npm run update-docs-index
 
 ---
 
-*Generated on 2025-08-18T01:13:57.164Z by the documentation index generator.*
+*Generated on 2025-08-20T06:49:50.874Z by the documentation index generator.*
