@@ -54,3 +54,5 @@ next-env.d.ts
 # OS
 Thumbs.db
 .DS_Store
+# Ignore development history
+**/devhistory/
